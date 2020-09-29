@@ -1,4 +1,4 @@
-package com.stefanovich.repositories;
+package com.stefanovich.repository;
 
 import com.stefanovich.model.Users;
 import org.springframework.data.repository.CrudRepository;

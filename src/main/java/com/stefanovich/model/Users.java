@@ -1,6 +1,8 @@
 package com.stefanovich.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -8,22 +10,23 @@ import java.util.Date;
 public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(nullable = false)
     private Integer id;
     @Column(name = "is_moderator", columnDefinition = "TINYINT", nullable = false)
     private boolean isModerator;
     @Column(name = "reg_time", columnDefinition = "DATETIME not null")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date regTime;
+//    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime regTime;
     @Column(nullable = false)
     private String name;
     @Column(nullable = false)
     private String email;
     @Column(nullable = false)
-    private int password;
-    private int code;
+    private String password;
+    private String code;
     @Column(columnDefinition = "text")
     private String photo;
+
+
 
     public Integer getId() {
         return id;
@@ -38,11 +41,11 @@ public class Users {
         isModerator = moderator;
     }
 
-    public Date getRegTime() {
+    public LocalDateTime getRegTime() {
         return regTime;
     }
 
-    public void setRegTime(Date regTime) {
+    public void setRegTime(LocalDateTime regTime) {
         this.regTime = regTime;
     }
 
@@ -62,19 +65,19 @@ public class Users {
         this.email = email;
     }
 
-    public int getPassword() {
+    public String getPassword() {
         return password;
     }
 
-    public void setPassword(int password) {
+    public void setPassword(String password) {
         this.password = password;
     }
 
-    public int getCode() {
+    public String getCode() {
         return code;
     }
 
-    public void setCode(int code) {
+    public void setCode(String code) {
         this.code = code;
     }
 

@@ -7,7 +7,6 @@ import javax.persistence.*;
 public class Tags {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(nullable = false)
     private Integer id;
     @Column(nullable = false)
     private String name;
@@ -22,5 +21,9 @@ public class Tags {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }
