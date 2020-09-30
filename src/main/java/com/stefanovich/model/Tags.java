@@ -1,6 +1,7 @@
 package com.stefanovich.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "tags")
@@ -8,8 +9,10 @@ public class Tags {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-    @Column(nullable = false)
+
+    @NotNull
     private String name;
+
 
     public Integer getId() {
         return id;

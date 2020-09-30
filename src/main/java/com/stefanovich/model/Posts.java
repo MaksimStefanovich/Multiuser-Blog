@@ -4,46 +4,52 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
-public class Topic {
-
-    public Topic() {
-    }
-
+public class Posts {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-//    @Column(name = "is_active", columnDefinition = "TINYINT", nullable = false)
+    @Column(name = "is_active", columnDefinition = "TINYINT")
+    @NotNull
     private Boolean isActive;
+
     @Enumerated(EnumType.STRING)
-//    @Column(name = "moderation_status", columnDefinition = "ModerationStatus default 'NEW'", nullable = false)
+    @Column(name = "moderation_status")
     private ModerationStatus moderationStatus = ModerationStatus.NEW;
+
     @ManyToOne
     private Users moderator;
+
     @ManyToOne
     @NotNull
     private Users user;
-//    @Column(columnDefinition = "DATETIME not null")
+
+    @Column(columnDefinition = "DATETIME")
+    @NotNull
     private LocalDateTime time;
-//    @Column(nullable = false)
+
+    @NotNull
     private String title;
 
-//    @Column(columnDefinition = "text", nullable = false)
+    @Column(columnDefinition = "text")
+    @NotNull
     private String text;
 
-//    @Column(name = "view_count")
+    @Column(name = "view_count")
     private Integer viewCount;
 
     @ManyToMany
     private List<Tags> tags = new ArrayList<>();
 
+
+
     public List<Tags> getTags() {
         return tags;
     }
+
 
     public void setTags(List<Tags> tags) {
         this.tags = tags;

@@ -5,27 +5,31 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Entity
-public class TopicComment {
+@Table(name = "post_comments")
+public class PostComments {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
     @ManyToOne
-    private TopicComment parent;
+    private PostComments parent;
 
     @ManyToOne
     @NotNull
-    private Topic topic;
+    private Posts messages;
 
     @ManyToOne
     @NotNull
     private Users user;
 
-    @Column(columnDefinition = "DATETIME not null")
+    @Column(columnDefinition = "DATETIME")
+    @NotNull
     private LocalDateTime time;
-    @Column (nullable = false)
+
+    @NotNull
     @Lob
     private String text;
+
 
     public Integer getId() {
         return id;
@@ -47,20 +51,20 @@ public class TopicComment {
         this.id = id;
     }
 
-    public TopicComment getParent() {
+    public PostComments getParent() {
         return parent;
     }
 
-    public void setParent(TopicComment parent) {
+    public void setParent(PostComments parent) {
         this.parent = parent;
     }
 
-    public Topic getTopic() {
-        return topic;
+    public Posts getMessages() {
+        return messages;
     }
 
-    public void setTopic(Topic topic) {
-        this.topic = topic;
+    public void setMessages(Posts messages) {
+        this.messages = messages;
     }
 
     public Users getUser() {

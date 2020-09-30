@@ -5,7 +5,8 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Entity
-public class TopicVote {
+@Table(name = "post_votes")
+public class PostVotes {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
@@ -16,11 +17,16 @@ public class TopicVote {
 
     @ManyToOne
     @NotNull
-    private Topic topic;
-    @Column(columnDefinition="DATETIME not null")
+    private Posts messages;
+
+    @Column(columnDefinition="DATETIME")
+    @NotNull
     private LocalDateTime time;
-    @Column(columnDefinition = "TINYINT",nullable = false)
+
+    @Column(columnDefinition = "TINYINT")
+    @NotNull
     private Boolean value;
+
 
     public Integer getId() {
         return id;
@@ -38,12 +44,12 @@ public class TopicVote {
         this.user = user;
     }
 
-    public Topic getTopic() {
-        return topic;
+    public Posts getMessages() {
+        return messages;
     }
 
-    public void setTopic(Topic topic) {
-        this.topic = topic;
+    public void setMessages(Posts messages) {
+        this.messages = messages;
     }
 
     public LocalDateTime getTime() {

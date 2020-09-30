@@ -1,6 +1,8 @@
 package com.stefanovich.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -8,26 +10,35 @@ import java.util.Date;
 public class CaptchaCodes {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(nullable = false)
     private Integer id;
-    @Column(columnDefinition = "DATETIME not null")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date time;
-    @Column(name = "is_active", columnDefinition = "TINYTEXT", nullable = false)
+
+    @Column(columnDefinition = "DATETIME")
+    @NotNull
+//    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime time;
+
+    @Column(columnDefinition = "TINYTEXT")
+    @NotNull
     private String code;
-    @Column(name = "secret_code", columnDefinition = "TINYTEXT", nullable = false)
+
+    @Column(name = "secret_code", columnDefinition = "TINYTEXT")
+    @NotNull
     private String secretCode;
+
 
     public Integer getId() {
         return id;
     }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-    public Date getTime() {
+    public LocalDateTime getTime() {
         return time;
     }
 
-    public void setTime(Date time) {
+    public void setTime(LocalDateTime time) {
         this.time = time;
     }
 

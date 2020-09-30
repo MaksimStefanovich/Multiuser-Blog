@@ -1,22 +1,25 @@
 package com.stefanovich.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "global_settings")
 public class GlobalSettings {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(nullable = false)
     private Integer id;
+    @NotNull
     private String code;
+    @NotNull
     private String name;
+    @NotNull
     private String value;
+
 
     public Integer getId() {
         return id;
     }
-
 
     public String getCode() {
         return code;

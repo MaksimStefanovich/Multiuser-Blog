@@ -6,23 +6,30 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
-@Table(name = "users")
 public class Users {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-    @Column(name = "is_moderator", columnDefinition = "TINYINT", nullable = false)
+
+    @Column(name = "is_moderator", columnDefinition = "TINYINT")
+    @NotNull
     private boolean isModerator;
-    @Column(name = "reg_time", columnDefinition = "DATETIME not null")
-//    @Temporal(TemporalType.TIMESTAMP)
+
+    @Column(name = "reg_time", columnDefinition = "DATETIME")
+    @NotNull
     private LocalDateTime regTime;
-    @Column(nullable = false)
+
+    @NotNull
     private String name;
-    @Column(nullable = false)
+
+    @NotNull
     private String email;
-    @Column(nullable = false)
+
+    @NotNull
     private String password;
+
     private String code;
+
     @Column(columnDefinition = "text")
     private String photo;
 
