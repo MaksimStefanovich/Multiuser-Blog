@@ -1,11 +1,14 @@
 package com.stefanovich.model;
 
+import lombok.Data;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "post_votes")
+@Data
 public class PostVotes {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -28,43 +31,5 @@ public class PostVotes {
     private Boolean value;
 
 
-    public Integer getId() {
-        return id;
-    }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Users getUser() {
-        return user;
-    }
-
-    public void setUser(Users user) {
-        this.user = user;
-    }
-
-    public Posts getMessages() {
-        return messages;
-    }
-
-    public void setMessages(Posts messages) {
-        this.messages = messages;
-    }
-
-    public LocalDateTime getTime() {
-        return time;
-    }
-
-    public void setTime(LocalDateTime time) {
-        this.time = time;
-    }
-
-    public Boolean getValue() {
-        return value;
-    }
-
-    public void setValue(Boolean value) {
-        this.value = value;
-    }
 }

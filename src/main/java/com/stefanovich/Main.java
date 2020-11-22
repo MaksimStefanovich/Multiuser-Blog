@@ -2,6 +2,7 @@ package com.stefanovich;
 
 import com.stefanovich.model.*;
 import com.stefanovich.repository.*;
+import org.apache.catalina.User;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -27,5 +28,6 @@ public class Main {
         this.postVotesRepository = postVotesRepository;
         this.tagsRepository = tagsRepository;
     }
+
 
 }

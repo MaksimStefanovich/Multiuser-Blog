@@ -1,10 +1,13 @@
 package com.stefanovich.model;
 
+import lombok.Data;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "tags")
+@Data
 public class Tags {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -14,19 +17,4 @@ public class Tags {
     private String name;
 
 
-    public Integer getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 }
