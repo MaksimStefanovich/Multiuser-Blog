@@ -52,6 +52,9 @@ public class Posts {
     @OneToMany(mappedBy = "messages")
     private List<PostComments> postComments = new ArrayList<>();
 
+    @OneToMany(mappedBy = "messages")
+    private List<PostVotes> postVotes = new ArrayList<>();
+
 
 
 

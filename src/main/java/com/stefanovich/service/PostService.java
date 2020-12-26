@@ -3,9 +3,8 @@ package com.stefanovich.service;
 import com.stefanovich.dto.*;
 import com.stefanovich.dto.mapper.PostDtoMapper;
 import com.stefanovich.dto.mapper.PostIdDtoMapper;
-import com.stefanovich.model.ModerationStatus;
-import com.stefanovich.model.Posts;
-import com.stefanovich.model.Tags;
+import com.stefanovich.model.*;
+import com.stefanovich.repository.PostVotesRepository;
 import com.stefanovich.repository.PostsRepository;
 import com.stefanovich.repository.TagsRepository;
 import com.stefanovich.repository.UsersRepository;
@@ -13,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,6 +37,7 @@ public class PostService {
     private final PostIdDtoMapper postIdDtoMapper;
     private final TagsRepository tagsRepository;
     private final UsersRepository usersRepository;
+    private final PostVotesRepository postVotesRepository;
 
     @Value("${upload.file.folder}")
     private String uploadFileFolder;
@@ -123,6 +126,7 @@ public class PostService {
                 post.getTags().add(tagNew);
             }
         }
+        //TODO change User
         post.setUser(usersRepository.findById(1).get());
         postsRepository.save(post);
 
@@ -160,7 +164,6 @@ public class PostService {
         savePost(post, postCreateDto);
     }
 
-//TODO проверить, получилось длинно и сложно, по-моему
 
     public Boolean moderationP(Integer id, ModerationDto.Decision decision) {
 
@@ -207,6 +210,33 @@ public class PostService {
                 .posts(posts)
                 .years(date)
                 .build();
+
+    }
+
+    public Boolean getLike(LikeDto likeDto) {
+
+        return getLikeOrDislike(1, likeDto.getPostId());
+    }
+
+    public Boolean getDisLike(LikeDto likeDto) {
+
+        return getLikeOrDislike(-1, likeDto.getPostId());
+    }
+
+    public Boolean getLikeOrDislike(int i, int postId) {
+        PostVotes postVotes = new PostVotes();
+        List<Posts> posts = postsRepository.findAllById(postId);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+        Users user = usersRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("bad!"));
+
+        postVotes.setUser(user);
+        postVotes.setTime(LocalDateTime.now());
+        postVotes.setMessages(posts.get(0));
+        postVotes.setValue(i);
+        postVotesRepository.save(postVotes);
+        return postVotes.getValue() != 0;
 
     }
 }

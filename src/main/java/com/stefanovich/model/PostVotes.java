@@ -28,7 +28,7 @@ public class PostVotes {
 
     @Column(columnDefinition = "TINYINT")
     @NotNull
-    private Boolean value;
+    private int value = 0;
 
 
 

@@ -63,7 +63,6 @@ public interface PostsRepository extends JpaRepository<Posts, Integer> {
     Long countPostByTagId(Integer id);
 
 
-
     @Query("SELECT distinct year(p.time) as y FROM Posts p" +
             " order by y ")
     List<Integer> getYear();
@@ -73,6 +72,15 @@ public interface PostsRepository extends JpaRepository<Posts, Integer> {
             " WHERE year(p.time) = :year")
     List<LocalDateTime> getYear(Integer year);
 
+    @Query("SELECT p FROM Posts p " +
+            "JOIN p.user u " +
+            "WHERE u.id = :id ")
+    List<Posts> findAllByUserId(Integer id);
 
+    @Query("SELECT p FROM Posts p " +
+            "JOIN p.user u " +
+            "WHERE p.moderationStatus = 'NEW' " +
+            "and u.id = :id")
+    List<Posts> findAllUserId(Integer id);
 }
 

@@ -1,5 +1,6 @@
 package com.stefanovich.controllers;
 
+import com.stefanovich.dto.LikeDto;
 import com.stefanovich.dto.ListPostDto;
 import com.stefanovich.dto.PostCreateDto;
 import com.stefanovich.dto.PostIdDto;
@@ -106,7 +107,7 @@ public class ApiPostController {
         return map;
     }
 
-    @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PutMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public String saveImage(@RequestPart MultipartFile image) throws IOException {
         return postService.savePicture(image);
     }
@@ -117,6 +118,20 @@ public class ApiPostController {
         map.put("result", true);
         postService.update(id, postCreateDto);
         return map;
+    }
+
+    @PostMapping("/like")
+    public Map<String, Boolean> putLike(@RequestBody LikeDto likeDto){
+        Map<String, Boolean> map = new HashMap<>();
+        map.put("result", postService.getLike(likeDto));
+        return map;
+
+    }@PostMapping("/dislike")
+    public Map<String, Boolean> putDisLike(@RequestBody LikeDto likeDto){
+        Map<String, Boolean> map = new HashMap<>();
+        map.put("result", postService.getDisLike(likeDto));
+        return map;
+
     }
 
 
