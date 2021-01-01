@@ -1,6 +1,7 @@
 package com.stefanovich.Configuration;
 
 import com.stefanovich.repository.PostsRepository;
+import com.stefanovich.security.CustomLogoutSuccessHandler;
 import com.stefanovich.security.JsonLoginFilter;
 import com.stefanovich.security.UserRole;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +14,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -30,34 +30,36 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/api/init").permitAll()
 
-
-                .antMatchers("/api/post/moderation").hasAuthority(UserRole.MODERATOR.name())
+                .antMatchers(HttpMethod.GET,"/api/post/moderation").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
                 .antMatchers("/api/post/my").hasAuthority(UserRole.USER.name())
-                .antMatchers("/api/post").hasAuthority(UserRole.USER.name())
-                .antMatchers("/api/post/like").hasAnyAuthority()
+                .antMatchers("/api/post").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
+                .antMatchers("/api/post/like").hasAuthority(UserRole.USER.name())
+                .antMatchers("/api/post/dislike").hasAuthority(UserRole.USER.name())
+                .antMatchers("/api/post/image").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
 
                 .antMatchers(HttpMethod.GET, "/api/post/**").permitAll()
 
-                //TODO лучше hasAnyRole или hasAnyAuthority
-                .antMatchers("/api/image").hasAnyRole()
 
-                .antMatchers(HttpMethod.PUT, "/api/post/**").hasAnyAuthority()
-                .antMatchers("/api/comment/**").hasAnyRole()
+                .antMatchers(HttpMethod.PUT, "/api/post/**").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
+                .antMatchers("/api/comment/**").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
                 .antMatchers("/api/tag/**").permitAll()
-                .antMatchers("/api/moderation").hasAuthority(UserRole.MODERATOR.name())
+                .antMatchers(HttpMethod.POST,"/api/moderation").hasAuthority(UserRole.USER.name())
                 .antMatchers("/api/calendar/**").permitAll()
-                .antMatchers("/api/auth/profile/my").hasAnyRole()
+                .antMatchers("/api/auth/profile/my").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
+                .antMatchers("/api/auth/logout").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
                 .antMatchers("/api/auth/**").permitAll()
-                .antMatchers("/api/statistics/my").hasAnyAuthority(UserRole.USER.name())
+                .antMatchers("/api/statistics/my").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
                 .antMatchers("/api/statistics/all").permitAll()
+                .antMatchers(HttpMethod.PUT, "/api/settings/").hasAuthority(UserRole.MODERATOR.name())
+                .antMatchers(HttpMethod.GET, "/api/settings/").permitAll()
 
 
                 .anyRequest().permitAll()
                 .and().formLogin()
                 .and()
                 .logout()
-                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
-
+                .logoutUrl("/api/auth/logout")
+                .logoutSuccessHandler(new CustomLogoutSuccessHandler());
     }
 
 

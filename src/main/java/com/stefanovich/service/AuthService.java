@@ -3,6 +3,7 @@ package com.stefanovich.service;
 
 import com.github.cage.Cage;
 import com.github.cage.GCage;
+import com.stefanovich.dto.AddUserDto;
 import com.stefanovich.dto.AuthLoginDto;
 import com.stefanovich.dto.CaptchaDto;
 import com.stefanovich.dto.ChangePasswordDto;
@@ -15,15 +16,10 @@ import com.stefanovich.repository.UsersRepository;
 import com.stefanovich.security.EmailService;
 import com.stefanovich.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.io.FileUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -77,14 +73,42 @@ public class AuthService {
     }
 
 
-    public void addUser(String email, String password, String name) {
+    public Map<String, Object> addUser(AddUserDto addUserDto) {
+
+        Optional<Users> byEmail = usersRepository.findByEmail(addUserDto.getEmail());
+        if (byEmail.isPresent()) {
+            return Map.of(
+                    "result", false,
+                    "errors", Map.of(
+                            "email", "Этот e-mail уже зарегистрирован"
+                    ));
+
+        }
+
+        Optional<CaptchaCodes> byCode = captchaCodesRepository.findByCapcha(addUserDto.getCaptcha());
+
+        if (byCode.isPresent()) {
+            CaptchaCodes captchaCodes = byCode.get();
+            if (LocalDateTime.now().minusDays(1).isAfter(captchaCodes.getTime())) {
+                return Map.of(
+                        "result", false,
+                        "errors", Map.of(
+                                "captcha", "Код с картинки введён неверно"
+                        )
+                );
+            }
+        }
+
+
         Users user = new Users();
-        user.setName(name);
-        user.setEmail(email);
-        user.setPassword(passwordEncoder.encode(password));
+        user.setName(addUserDto.getName());
+        user.setEmail(addUserDto.getEmail());
+        user.setPassword(passwordEncoder.encode(addUserDto.getPassword()));
         user.setRegTime(LocalDateTime.now());
         user.setModerator(false);
         usersRepository.save(user);
+
+        return Map.of("result", true);
 
     }
 
@@ -129,7 +153,7 @@ public class AuthService {
                         )
                 );
             } else {
-                return Map.of("result",true);
+                return Map.of("result", true);
             }
         } else {
             return Map.of(
@@ -141,7 +165,7 @@ public class AuthService {
         }
     }
 
-    public CaptchaDto makeCaptchaDto() throws IOException {
+    public CaptchaDto makeCaptchaDto() {
         Cage cage = new GCage();
 
         String secretCode = UUID.randomUUID().toString();

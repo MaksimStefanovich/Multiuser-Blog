@@ -5,22 +5,22 @@ import com.stefanovich.model.PostComments;
 import com.stefanovich.model.Posts;
 import com.stefanovich.repository.PostCommentsRepository;
 import com.stefanovich.repository.PostsRepository;
-import com.stefanovich.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class CommentService {
-    private final UsersRepository usersRepository;
     private final PostCommentsRepository postCommentsRepository;
     private final PostsRepository postsRepository;
+    private final AuthService authService;
 
 
-    public Integer saveCommentDto(CommentCreateDto commentCreateDto) {
+    public Map<String, Integer> saveCommentDto(CommentCreateDto commentCreateDto) {
         PostComments postComments = new PostComments();
         Integer id = commentCreateDto.getPostId();
 
@@ -34,9 +34,11 @@ public class CommentService {
                     () -> new EntityNotFoundException("postComment with id = " + id + " not found")));
         }
 
-        postComments.setUser(usersRepository.findById(1).get());
+        authService.getCurrentUser();
+
+        postComments.setUser(authService.getCurrentUser());
         postComments.setTime(LocalDateTime.now());
         postCommentsRepository.save(postComments);
-        return postComments.getId();
+        return Map.of("id", postComments.getId());
     }
 }

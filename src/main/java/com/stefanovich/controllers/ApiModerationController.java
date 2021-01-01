@@ -14,7 +14,6 @@ import java.util.Map;
 public class ApiModerationController {
     private final PostService postService;
 
-    // TODO должны ли совподать названия параметров с postman
     @PostMapping
     public Map<String, Boolean> moderationPost(@RequestBody ModerationDto moderationDto) {
         Map<String, Boolean> map = new HashMap<>();

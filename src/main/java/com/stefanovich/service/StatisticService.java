@@ -1,17 +1,18 @@
 package com.stefanovich.service;
 
 import com.stefanovich.dto.StatisticDto;
-import com.stefanovich.dto.PostIdDto;
-import com.stefanovich.dto.mapper.PostIdDtoMapper;
 import com.stefanovich.model.Posts;
 import com.stefanovich.model.Users;
+import com.stefanovich.repository.GlobalSettingsRepository;
 import com.stefanovich.repository.PostsRepository;
-import com.stefanovich.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityNotFoundException;
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
-import java.util.OptionalLong;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,43 +20,58 @@ import java.util.stream.Collectors;
 public class StatisticService {
 
     private final PostsRepository postsRepository;
-    private final PostIdDtoMapper postIdDtoMapper;
-    private final UsersRepository usersRepository;
     private final AuthService authService;
+    private final GlobalSettingsRepository globalSettingsRepository;
 
 
     public StatisticDto getMyStat() {
-
-
         Users user = authService.getCurrentUser();
         List<Posts> post = postsRepository.findAllByUserId(user.getId());
-
         return getStatisticDto(post);
     }
 
     public StatisticDto getAllStat() {
-        List<Posts> post = postsRepository.findAll();
-        return getStatisticDto(post);
+
+        String byCode = globalSettingsRepository.findByCode();
+
+        if (!authService.getCurrentUser().isModerator() || byCode.equals("NO")) new NullPointerException();
+        else {
+            List<Posts> post = postsRepository.findAll();
+            return getStatisticDto(post);
+        }
+        return null;
     }
 
     public StatisticDto getStatisticDto(List<Posts> post) {
+
+        List<LocalDateTime> collect = post.stream().map(Posts::getTime).collect(Collectors.toList());
+        LocalDateTime time = Collections.min(collect);
+
+        AtomicInteger likeCount = new AtomicInteger();
+        AtomicInteger disLikeCount = new AtomicInteger();
+        AtomicInteger viewCount = new AtomicInteger();
+
+        post.forEach(posts -> {
+            if (posts.getViewCount() != null) {
+                viewCount.set(viewCount.get() + posts.getViewCount());
+            }
+            posts.getPostVotes().forEach(p -> {
+                if (p.getValue() == 1) {
+                    likeCount.getAndIncrement();
+                }
+                if (p.getValue() == -1) {
+                    disLikeCount.getAndIncrement();
+                }
+            });
+        });
+
         StatisticDto statisticDto = new StatisticDto();
 
-        List<PostIdDto> postIdDto = post.stream().map(postIdDtoMapper::convertToPostDtoId)
-                .collect(Collectors.toList());
-
-        Long likeCount = postIdDto.stream().map(PostIdDto::getLikeCount).count();
-        Long disLikeCount = postIdDto.stream().map(PostIdDto::getDislikeCount).count();
-        Long viewCount = postIdDto.stream().map(PostIdDto::getViewCount).count();
-        OptionalLong firstPublication = postIdDto.stream().map(PostIdDto::getTimestamp)
-                .mapToLong(Long::longValue).min();
-
-
         statisticDto.setPostsCount(String.valueOf(post.size()));
-        statisticDto.setLikesCount(String.valueOf(likeCount));
-        statisticDto.setDislikesCount(String.valueOf(disLikeCount));
-        statisticDto.setViewsCount(String.valueOf(viewCount));
-        statisticDto.setFirstPublication(String.valueOf(firstPublication));
+        statisticDto.setLikesCount(String.valueOf(likeCount.get()));
+        statisticDto.setDislikesCount(String.valueOf(disLikeCount.get()));
+        statisticDto.setViewsCount(String.valueOf(viewCount.get()));
+        statisticDto.setFirstPublication(String.valueOf(time));
 
         return statisticDto;
     }

@@ -15,11 +15,14 @@ import java.util.stream.Collectors;
 public class PostDtoMapper {
 
     private final ModelMapper modelMapper;
+    private final PostsCommentsDtoMapper p;
+
 
     public PostDto convertToPostsDTO(Posts posts) {
         PostDto postDto = modelMapper
                 .map(posts, PostDto.class);
         postDto.setTimestamp(Timestamp.valueOf(posts.getTime()).getTime());
+//        postDto.setComments(p.convertToDtoListPostComments(posts.getPostComments()));
         return postDto;
     }
 

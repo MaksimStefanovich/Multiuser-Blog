@@ -25,14 +25,8 @@ public class ApiAuthController {
     }
 
     @PostMapping("/register")
-    public Map<String, Boolean> addUser(@RequestBody @Valid AddUserDto addUserDto) {
-        Map<String, Boolean> map = new HashMap<>();
-        map.put("result", true);
-
-        authService.addUser(addUserDto.getEmail(), addUserDto.getPassword(),
-                addUserDto.getName());
-
-        return map;
+    public Map<String, Object> addUser(@RequestBody @Valid AddUserDto addUserDto) {
+       return authService.addUser(addUserDto);
     }
 
     @PostMapping("/restore")

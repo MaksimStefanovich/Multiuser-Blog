@@ -2,13 +2,15 @@ package com.stefanovich.repository;
 
 import com.stefanovich.model.ModerationStatus;
 import com.stefanovich.model.Posts;
+import com.stefanovich.model.Users;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -43,8 +45,13 @@ public interface PostsRepository extends JpaRepository<Posts, Integer> {
 
 
     @Query("SELECT p FROM Posts p WHERE p.isActive = true " +
-            "and p.moderator.isModerator = true and p.moderationStatus = :status")
+            "and p.moderator.isModerator = true and p.moderationStatus = :status ")
     List<Posts> findAllModeration(Pageable pageable, ModerationStatus status);
+
+
+    @Query("SELECT p FROM Posts p WHERE p.user = :user " +
+            "and p.isActive = :isActive and p.moderationStatus = :status ")
+    List<Posts> findByAllMyPost(Pageable pageable, ModerationStatus status, Users user, Boolean isActive);
 
 
     @Query("SELECT p FROM Posts p WHERE p.isActive = true " +
@@ -82,5 +89,9 @@ public interface PostsRepository extends JpaRepository<Posts, Integer> {
             "WHERE p.moderationStatus = 'NEW' " +
             "and u.id = :id")
     List<Posts> findAllUserId(Integer id);
+
+    @Query("SELECT p FROM Posts p " +
+            "WHERE p.id = :id ")
+    Posts findByPost(Integer id);
 }
 

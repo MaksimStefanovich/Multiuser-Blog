@@ -10,8 +10,13 @@ import java.util.Optional;
 @Repository
 public interface CaptchaCodesRepository extends JpaRepository<CaptchaCodes, Integer> {
 
- @Query("SELECT c from CaptchaCodes c " +
-         "WHERE c.code = :code " +
-         "and c.secretCode = :secretCode ")
+    @Query("SELECT c from CaptchaCodes c " +
+            "WHERE c.code = :code " +
+            "and c.secretCode = :secretCode ")
     Optional<CaptchaCodes> findByCode(String code, String secretCode);
+
+
+    @Query("SELECT c from CaptchaCodes c " +
+            "WHERE c.code = :code ")
+    Optional<CaptchaCodes> findByCapcha(String code);
 }

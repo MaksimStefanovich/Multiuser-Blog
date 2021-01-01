@@ -16,9 +16,9 @@ import java.time.format.DateTimeFormatter;
 @SpringBootApplication
 public class Main {
     public static void main(String[] args) throws JsonProcessingException {
-       ZonedDateTime localDateTime = ZonedDateTime.now();
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
-        System.out.println("localDateTime = " + localDateTime.format(dateTimeFormatter));
+//       ZonedDateTime localDateTime = ZonedDateTime.now();
+//        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssZ");
+//        System.out.println("localDateTime = " + localDateTime.format(dateTimeFormatter));
         SpringApplication.run(Main.class, args);
     }
 

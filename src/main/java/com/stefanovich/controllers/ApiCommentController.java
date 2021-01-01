@@ -8,21 +8,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
 import javax.validation.Valid;
-import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("api/comment")
+@RequestMapping("api/comment/")
 @RequiredArgsConstructor
 public class ApiCommentController {
     private final CommentService commentService;
 
     @PostMapping()
     public Map<String, Integer> saveComment(@RequestBody @Valid CommentCreateDto commentCreateDto) {
-        Map<String, Integer> map = new HashMap<>();
-        Integer id = commentService.saveCommentDto(commentCreateDto);
-        map.put("id", id);
-        return map;
+
+        return commentService.saveCommentDto(commentCreateDto);
     }
 }

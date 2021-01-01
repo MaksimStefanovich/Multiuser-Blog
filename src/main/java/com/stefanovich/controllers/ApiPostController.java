@@ -35,8 +35,9 @@ public class ApiPostController {
     public ListPostDto getPostsSearch(@RequestParam(defaultValue = "0", required = false) Integer offset,
                                       @RequestParam(defaultValue = "5", required = false) Integer limit,
                                       @RequestParam String query) {
+        long count = postService.getPostsDtoSearch(offset, limit, query).size();
         return ListPostDto.builder()
-                .count(postService.getCount())
+                .count(count)
                 .posts(postService.getPostsDtoSearch(offset, limit, query))
                 .build();
     }
@@ -47,9 +48,9 @@ public class ApiPostController {
                                  @RequestParam(defaultValue = "5", required = false) Integer limit,
                                  @RequestParam String date) {
 
-
+        long count = postService.getPostsDtoByDate(offset, limit, date).size();
         return ListPostDto.builder()
-                .count(postService.getCount())
+                .count(count)
                 .posts(postService.getPostsDtoByDate(offset, limit, date))
                 .build();
     }
@@ -59,8 +60,10 @@ public class ApiPostController {
                                  @RequestParam(defaultValue = "5", required = false) Integer limit,
                                  @RequestParam(name = "tag") String tagName) {
 
+        long count = postService.getByTagsDto(offset, limit, tagName).size();
+
         return ListPostDto.builder()
-                .count(postService.getCount())
+                .count(count)
                 .posts(postService.getByTagsDto(offset, limit, tagName))
                 .build();
     }
@@ -71,30 +74,30 @@ public class ApiPostController {
                                        @RequestParam(defaultValue = "5", required = false) Integer limit,
                                        @RequestParam ModerationStatus status) {
 
+        long count = postService.getByModeration(offset, limit, status).size();
         return ListPostDto.builder()
-                .count(postService.getCount())
+                .count(count)
                 .posts(postService.getByModeration(offset, limit, status))
                 .build();
     }
 
 
-//    @GetMapping("/my")
-//    public ListPostDto getByModeration(@RequestParam(defaultValue = "0", required = false) Integer offset,
-//                                       @RequestParam(defaultValue = "5", required = false) Integer limit,
-//                                       @RequestParam(defaultValue = "status", required = true ) ModerationStatus status,
-//                                       @RequestParam(defaultValue = "false", required = false) Boolean inactive,
-//                                       @RequestParam(defaultValue = "true", required = true) Boolean pending) {
-//
-//
-//
-//        return ListPostDto.builder()
-//                .count(postService.getCount())
-//                .posts(postService.getByModeration(offset, limit, status))
-//                .build();
-//    }
+    @GetMapping("/my")
+    public ListPostDto getByModeration(@RequestParam(defaultValue = "0", required = false) Integer offset,
+                                       @RequestParam(defaultValue = "5", required = false) Integer limit,
+                                       @RequestParam ModerationStatus status,
+                                       @RequestParam Boolean isActive) {
+        long count = postService.getByMyPosts(offset, limit, status, isActive).size();
+
+        return ListPostDto.builder()
+                .count(count)
+                .posts(postService.getByMyPosts(offset, limit, status, isActive))
+                .build();
+    }
 
     @GetMapping("/{id}")
     public PostIdDto getByPostId(@PathVariable Integer id) {
+
         return postService.getByPostId(id);
     }
 
@@ -107,7 +110,7 @@ public class ApiPostController {
         return map;
     }
 
-    @PutMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public String saveImage(@RequestPart MultipartFile image) throws IOException {
         return postService.savePicture(image);
     }
@@ -121,15 +124,17 @@ public class ApiPostController {
     }
 
     @PostMapping("/like")
-    public Map<String, Boolean> putLike(@RequestBody LikeDto likeDto){
+    public Map<String, Boolean> putLike(@RequestBody LikeDto likeDto) {
         Map<String, Boolean> map = new HashMap<>();
-        map.put("result", postService.getLike(likeDto));
+        map.put("result", postService.saveLike(likeDto));
         return map;
 
-    }@PostMapping("/dislike")
-    public Map<String, Boolean> putDisLike(@RequestBody LikeDto likeDto){
+    }
+
+    @PostMapping("/dislike")
+    public Map<String, Boolean> putDisLike(@RequestBody LikeDto likeDto) {
         Map<String, Boolean> map = new HashMap<>();
-        map.put("result", postService.getDisLike(likeDto));
+        map.put("result", postService.saveDisLike(likeDto));
         return map;
 
     }

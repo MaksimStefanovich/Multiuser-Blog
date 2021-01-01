@@ -12,7 +12,6 @@ import javax.validation.constraints.Size;
 public class AddUserDto {
 
     @JsonProperty("e_mail")
-//    TODO How test correct email
     @NotBlank(message = "Этот e-mail уже зарегистрирован")
     private String email;
 
@@ -21,6 +20,7 @@ public class AddUserDto {
     private String password;
 
     @NotBlank(message = "Имя указано неверно")
+    @Size(min = 2, message = "Имя указано неверно")
     private String name;
 
     @NotBlank(message =  "Код с картинки введён неверно")
