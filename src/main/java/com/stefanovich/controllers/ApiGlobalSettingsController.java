@@ -9,7 +9,7 @@ import java.util.Map;
 
 
 @RestController
-@RequestMapping("api/settings/")
+@RequestMapping("api/settings")
 @RequiredArgsConstructor
 public class ApiGlobalSettingsController {
 

@@ -8,8 +8,10 @@ import com.stefanovich.repository.PostsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityNotFoundException;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -34,7 +36,8 @@ public class StatisticService {
 
         String byCode = globalSettingsRepository.findByCode();
 
-        if (!authService.getCurrentUser().isModerator() || byCode.equals("NO")) new NullPointerException();
+
+        if (byCode.equals("NO")) new NullPointerException();
         else {
             List<Posts> post = postsRepository.findAll();
             return getStatisticDto(post);
@@ -45,9 +48,14 @@ public class StatisticService {
     public StatisticDto getStatisticDto(List<Posts> post) {
 
         List<LocalDateTime> collect = post.stream().map(Posts::getTime).collect(Collectors.toList());
-        LocalDateTime time = Collections.min(collect);
 
-        AtomicInteger likeCount = new AtomicInteger();
+        LocalDateTime time = Collections.min(collect);
+        Instant instant = time.atZone(ZoneId.of("Europe/Paris")).toInstant();
+//        Long timestamp = Timestamp.from(instant).getTime();
+        Long timestampSeconds = instant.getEpochSecond();
+
+
+                AtomicInteger likeCount = new AtomicInteger();
         AtomicInteger disLikeCount = new AtomicInteger();
         AtomicInteger viewCount = new AtomicInteger();
 
@@ -71,7 +79,7 @@ public class StatisticService {
         statisticDto.setLikesCount(String.valueOf(likeCount.get()));
         statisticDto.setDislikesCount(String.valueOf(disLikeCount.get()));
         statisticDto.setViewsCount(String.valueOf(viewCount.get()));
-        statisticDto.setFirstPublication(String.valueOf(time));
+        statisticDto.setFirstPublication(timestampSeconds);
 
         return statisticDto;
     }

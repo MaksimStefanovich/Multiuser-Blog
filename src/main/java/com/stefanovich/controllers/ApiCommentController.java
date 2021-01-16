@@ -13,7 +13,7 @@ import javax.validation.Valid;
 import java.util.Map;
 
 @RestController
-@RequestMapping("api/comment/")
+@RequestMapping("api/comment")
 @RequiredArgsConstructor
 public class ApiCommentController {
     private final CommentService commentService;

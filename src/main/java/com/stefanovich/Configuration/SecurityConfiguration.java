@@ -29,28 +29,30 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .addFilterBefore(jsonLoginFilter(postsRepository), UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/api/init").permitAll()
-
-                .antMatchers(HttpMethod.GET,"/api/post/moderation").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
-                .antMatchers("/api/post/my").hasAuthority(UserRole.USER.name())
-                .antMatchers("/api/post").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
-                .antMatchers("/api/post/like").hasAuthority(UserRole.USER.name())
-                .antMatchers("/api/post/dislike").hasAuthority(UserRole.USER.name())
-                .antMatchers("/api/post/image").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
+                .antMatchers(HttpMethod.GET,"/api/post/moderation").hasAnyAuthority(UserRole.MODERATOR.name())
+                .antMatchers(HttpMethod.GET,"/api/post/my").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
 
                 .antMatchers(HttpMethod.GET, "/api/post/**").permitAll()
 
 
+                .antMatchers(HttpMethod.POST,"/api/post").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
+                .antMatchers(HttpMethod.POST,"/api/post/like").hasAuthority(UserRole.USER.name())
+                .antMatchers(HttpMethod.POST,"/api/post/dislike").hasAuthority(UserRole.USER.name())
+                .antMatchers(HttpMethod.POST,"/api/post/image").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
+
+
+
                 .antMatchers(HttpMethod.PUT, "/api/post/**").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
-                .antMatchers("/api/comment/**").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
-                .antMatchers("/api/tag/**").permitAll()
-                .antMatchers(HttpMethod.POST,"/api/moderation").hasAuthority(UserRole.USER.name())
-                .antMatchers("/api/calendar/**").permitAll()
-                .antMatchers("/api/auth/profile/my").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
-                .antMatchers("/api/auth/logout").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
+                .antMatchers(HttpMethod.POST,"/api/comment").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
+                .antMatchers(HttpMethod.GET,"/api/tag/**").permitAll()
+                .antMatchers(HttpMethod.POST,"/api/moderation").hasAuthority(UserRole.MODERATOR.name())
+                .antMatchers(HttpMethod.GET,"/api/calendar/**").permitAll()
+                .antMatchers(HttpMethod.POST,"/api/auth/profile/my").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
+                .antMatchers(HttpMethod.GET,"/api/auth/logout").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
                 .antMatchers("/api/auth/**").permitAll()
-                .antMatchers("/api/statistics/my").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
-                .antMatchers("/api/statistics/all").permitAll()
-                .antMatchers(HttpMethod.PUT, "/api/settings/").hasAuthority(UserRole.MODERATOR.name())
+                .antMatchers(HttpMethod.GET,"/api/statistics/my").hasAnyAuthority(UserRole.USER.name(), UserRole.MODERATOR.name())
+                .antMatchers(HttpMethod.GET,"/api/statistics/all").permitAll()
+                .antMatchers(HttpMethod.PUT, "/api/settings/").permitAll()
                 .antMatchers(HttpMethod.GET, "/api/settings/").permitAll()
 
 

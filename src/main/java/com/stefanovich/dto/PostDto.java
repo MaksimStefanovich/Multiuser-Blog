@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -29,13 +28,6 @@ public class PostDto {
     private Integer commentCount;
 
     private Integer viewCount;
-
-
-
-
-//    private List<PostCommentsDto> comments;
-
-
 
 
     @Data

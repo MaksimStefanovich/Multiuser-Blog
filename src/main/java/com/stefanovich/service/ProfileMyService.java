@@ -5,13 +5,11 @@ import com.stefanovich.model.Users;
 import com.stefanovich.repository.UsersRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.tomcat.util.http.fileupload.FileItem;
 import org.imgscalr.Scalr;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 
 import javax.imageio.ImageIO;
@@ -39,22 +37,14 @@ public class ProfileMyService {
     private Integer userAvatarSize;
 
 
-    public Map<String, Object> changePhotoAndPassword(String name, String email, String password,
-                                                      MultipartFile photo) throws IOException {
+    public Map<String, Object> changePhotoAndPassword(MultipartFile photo,String name, String email, String password,
+                                                      Integer removePhoto) throws IOException {
         if (!extension.contains(FilenameUtils.getExtension(photo.getOriginalFilename()))) {
             throw new RuntimeException();
         }
 
         Users user = authService.getCurrentUser();
 
-        Optional<Users> byEmail = usersRepository.findByEmail(email);
-        if (byEmail.isPresent()) {
-            return Map.of(
-                    "result", false,
-                    "errors", Map.of(
-                            "email", "Этот e-mail уже зарегистрирован"
-                    ));
-        }
 
         if (password == null || password.length() < 6) {
             return Map.of(
@@ -65,14 +55,6 @@ public class ProfileMyService {
 
         }
 
-        if (name == null || name.length() < 2) {
-            return Map.of(
-                    "result", false,
-                    "errors", Map.of(
-                            "name", "Имя указано неверно"
-                    ));
-
-        }
 
         ByteArrayInputStream bis = new ByteArrayInputStream(photo.getBytes());
         BufferedImage image = ImageIO.read(bis);
@@ -85,8 +67,6 @@ public class ProfileMyService {
 
         ImageIO.write(newImage1, "jpg", file);
 
-        user.setName(name);
-        user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
         user.setPhoto(file.getPath());
         usersRepository.save(user);
@@ -99,28 +79,35 @@ public class ProfileMyService {
 
         Users user = authService.getCurrentUser();
 
-        if (profileMyDto.getName().length() < 2) {
-            return Map.of(
-                    "result", false,
-                    "errors", Map.of(
-                            "name", "Имя указано неверно"
-                    ));
+        if (user.getName().equals(profileMyDto.getName())) {
+            user.setName(profileMyDto.getName());
+        } else {
+            if (profileMyDto.getName().length() < 2) {
+                return Map.of(
+                        "result", false,
+                        "errors", Map.of(
+                                "name", "Имя указано неверно"
+                        ));
+
+            } else user.setName(profileMyDto.getName());
 
         }
 
-        Optional<Users> byEmail = usersRepository.findByEmail(profileMyDto.getEmail());
-        if (byEmail.isPresent()) {
-            return Map.of(
-                    "result", false,
-                    "errors", Map.of(
-                            "email", "Этот e-mail уже зарегистрирован"
-                    ));
+        if (user.getEmail().equals(profileMyDto.getEmail())) {
+            user.setEmail(profileMyDto.getEmail());
+        } else {
+
+            Optional<Users> byEmail = usersRepository.findByEmail(profileMyDto.getEmail());
+            if (byEmail.isPresent()) {
+                return Map.of(
+                        "result", false,
+                        "errors", Map.of(
+                                "email", "Этот e-mail уже зарегистрирован"
+                        ));
+            } else user.setEmail(profileMyDto.getEmail());
         }
 
-        user.setName(profileMyDto.getName());
-        user.setEmail(profileMyDto.getEmail());
         usersRepository.save(user);
-
         return Map.of("result", true);
 
     }

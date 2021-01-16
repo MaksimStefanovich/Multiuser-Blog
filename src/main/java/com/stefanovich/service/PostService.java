@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.io.FilenameUtils;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +28,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -52,12 +54,35 @@ public class PostService {
     }
 
 
-    public List<PostDto> getAllPostsDto(Integer offset, Integer limit) {
+    public ListPostDto getAllPostsDto(Integer offset, Integer limit, String mode) {
 
-        List<Posts> posts = postsRepository.findAllByIsActiveTrueAndAndModerationStatusAndTimeIsBefore(
+        Page<Posts> posts = postsRepository.findAllByIsActiveTrueAndModerationStatusAndTimeIsBefore(
                 ModerationStatus.ACCEPTED, LocalDateTime.now(), PageRequest.of(offset, limit));
 
-        return getListPostDto(posts);
+        long totalElements = posts.getTotalElements();
+
+        List<PostDto> listPostDto = getListPostDto(posts.toList());
+
+        if (mode.equals("recent")) {
+            listPostDto = listPostDto.stream().sorted((p1, p2) -> Long.compare(p2.getTimestamp(), p1.getTimestamp()))
+                    .collect(Collectors.toList());
+        }
+        if (mode.equals("popular")) {
+            listPostDto = listPostDto.stream().sorted((p1, p2) -> Long.compare(p2.getCommentCount(), p1.getCommentCount()))
+                    .collect(Collectors.toList());
+        }
+        if (mode.equals("best")) {
+            listPostDto = listPostDto.stream().sorted((p1, p2) -> Long.compare(p2.getLikeCount(), p1.getLikeCount()))
+                    .collect(Collectors.toList());
+        }
+        if (mode.equals("early")) {
+            listPostDto = listPostDto.stream().sorted(Comparator.comparing(PostDto::getTimestamp)).collect(Collectors.toList());
+        }
+
+        return ListPostDto.builder()
+                .count(totalElements)
+                .posts(listPostDto)
+                .build();
     }
 
     public List<PostDto> getListPostDto(List<Posts> posts) {
@@ -91,44 +116,126 @@ public class PostService {
     }
 
 
-    public List<PostDto> getPostsDtoSearch(Integer offset, Integer limit, String query) {
-        List<Posts> posts = postsRepository.findAllByQuery(query,
+    public ListPostDto getPostsDtoSearch(Integer offset, Integer limit, String query) {
+        Page<Posts> posts = postsRepository.findAllByQuery(query,
                 PageRequest.of(offset, limit));
-        return getListPostDto(posts);
 
+        long totalElements = posts.getTotalElements();
+        List<PostDto> listPostDto = getListPostDto(posts.toList());
 
+        return ListPostDto.builder()
+                .count(totalElements)
+                .posts(listPostDto)
+                .build();
     }
 
 
-    public List<PostDto> getPostsDtoByDate(Integer offset, Integer limit, String date) {
+    public ListPostDto getPostsDtoByDate(Integer offset, Integer limit, String date) {
 
         LocalDate localDate = LocalDate.parse(date);
         LocalDateTime localDateTime = localDate.atStartOfDay();
         LocalDateTime localDateTime1 = localDateTime.plusDays(1);
 
-        List<Posts> posts = postsRepository.findAllByDate(PageRequest.of(offset, limit), localDateTime, localDateTime1);
-        return getListPostDto(posts);
+        Page<Posts> posts = postsRepository.findAllByDate(PageRequest.of(offset, limit), localDateTime, localDateTime1);
 
+        long totalElements = posts.getTotalElements();
+        List<PostDto> listPostDto = getListPostDto(posts.toList());
+
+        return ListPostDto.builder()
+                .count(totalElements)
+                .posts(listPostDto)
+                .build();
+    }
+
+    public ListPostDto getByTagsDto(Integer offset, Integer limit, String name) {
+        Page<Posts> posts = postsRepository.findByTag(name, PageRequest.of(offset, limit));
+
+        long totalElements = posts.getTotalElements();
+        List<PostDto> listPostDto = getListPostDto(posts.toList());
+
+        return ListPostDto.builder()
+                .count(totalElements)
+                .posts(listPostDto)
+                .build();
+    }
+
+    public ListPostDto getByModeration(Integer offset, Integer limit, String status) {
+
+        Page<Posts> posts = null;
+        ModerationStatus moderationStatus = ModerationStatus.NEW;
+        Users users = authService.getCurrentUser();
+
+        if (status.equals("new")) {
+            posts = postsRepository.findAllModeration(PageRequest.of(offset, limit), moderationStatus);
+        }
+
+        if (status.equals("declined")) {
+            moderationStatus = ModerationStatus.DECLINED;
+            posts = postsRepository.findMyModeration(PageRequest.of(offset, limit), moderationStatus, users);
+        }
+
+        if (status.equals("accepted")) {
+            moderationStatus = ModerationStatus.ACCEPTED;
+            posts = postsRepository.findMyModeration(PageRequest.of(offset, limit), moderationStatus, users);
+        }
+
+        long totalElements = 0;
+        List<PostDto> listPostDto = new ArrayList<>();
+
+        if (posts != null) {
+            totalElements = posts.getTotalElements();
+            listPostDto = getListPostDto(posts.toList());
+        }
+
+        return ListPostDto.builder()
+                .count(totalElements)
+                .posts(listPostDto)
+                .build();
 
     }
 
-    public List<PostDto> getByTagsDto(Integer offset, Integer limit, String name) {
-        List<Posts> posts = postsRepository.findByTag(name, PageRequest.of(offset, limit));
-        return getListPostDto(posts);
-    }
-
-    public List<PostDto> getByModeration(Integer offset, Integer limit, ModerationStatus status) {
-        List<Posts> posts = postsRepository.findAllModeration(PageRequest.of(offset, limit), status);
-        return getListPostDto(posts);
-
-    }
-
-    public List<PostDto> getByMyPosts(Integer offset, Integer limit, ModerationStatus status, Boolean isActive) {
+    public ListPostDto getByMyPosts(Integer offset, Integer limit, String status) {
         Users currentUser = authService.getCurrentUser();
-        List<Posts> posts = postsRepository
-                .findByAllMyPost(PageRequest.of(offset, limit), status, currentUser, isActive);
-        return getListPostDto(posts);
+        ModerationStatus moderationStatus;
+        Page<Posts> posts = null;
 
+        if (status.equals("inactive")) {
+            posts = postsRepository
+                    .findByMyPostNoActive(PageRequest.of(offset, limit), currentUser);
+        }
+
+        if (status.equals("pending")) {
+            moderationStatus = ModerationStatus.NEW;
+            posts = postsRepository
+                    .findByAllMyPosts(PageRequest.of(offset, limit), currentUser, moderationStatus);
+        }
+
+
+        if (status.equals("declined")) {
+            moderationStatus = ModerationStatus.DECLINED;
+            posts = postsRepository
+                    .findByAllMyPosts(PageRequest.of(offset, limit), currentUser, moderationStatus);
+
+        }
+        if (status.equals("published")) {
+            moderationStatus = ModerationStatus.ACCEPTED;
+            posts = postsRepository
+                    .findByAllMyPosts(PageRequest.of(offset, limit), currentUser, moderationStatus);
+
+        }
+
+        long totalElements = 0;
+        List<PostDto> listPostDto = new ArrayList<>();
+
+        if (posts != null) {
+            totalElements = posts.getTotalElements();
+            listPostDto = getListPostDto(posts.toList());
+        }
+
+        return ListPostDto.builder()
+                .count(totalElements)
+                .posts(listPostDto)
+                .build();
     }
 
     public PostIdDto getByPostId(Integer id) {
@@ -178,12 +285,13 @@ public class PostService {
         post.setTitle(postCreateDto.getTitle());
         post.setText(postCreateDto.getText());
 
-        Timestamp timestamp = new Timestamp(postCreateDto.getTimestamp());
-        LocalDateTime time = timestamp.toLocalDateTime();
-        if (time.isBefore(LocalDateTime.now())) {
-            time = LocalDateTime.now();
-            post.setTime(time);
-        } else {
+
+        if (postCreateDto.getTimestamp() != null) {
+            Timestamp timestamp = new Timestamp(postCreateDto.getTimestamp());
+            LocalDateTime time = timestamp.toLocalDateTime();
+            if (time.isBefore(LocalDateTime.now())) {
+                time = LocalDateTime.now();
+            }
             post.setTime(time);
         }
 
@@ -202,9 +310,11 @@ public class PostService {
             }
         }
         post.setUser(authService.getCurrentUser());
-        post.setViewCount(1);
-        postsRepository.save(post);
+        if (post.getViewCount() == null) {
+            post.setViewCount(1);
+        } else post.setViewCount(post.getViewCount() + 1);
 
+        postsRepository.save(post);
     }
 
 
@@ -259,9 +369,7 @@ public class PostService {
             ModerationStatus moderationStatus2 = post.getModerationStatus();
             postsRepository.save(post);
 
-            if (moderationStatus1 == moderationStatus2) {
-                return false;
-            } else return true;
+            return moderationStatus1 != moderationStatus2;
         }
 
 
@@ -313,7 +421,6 @@ public class PostService {
             if (postVotes.get().getValue() == i) return false;
             else postVotes.get().setValue(i);
             postVotesRepository.save(postVotes.get());
-            return true;
         } else {
 
             PostVotes postVotesNew = new PostVotes();
@@ -322,8 +429,8 @@ public class PostService {
             postVotesNew.setMessages(post);
             postVotesNew.setValue(i);
             postVotesRepository.save(postVotesNew);
-            return true;
         }
+        return true;
 
     }
 }

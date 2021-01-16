@@ -4,15 +4,11 @@ import com.stefanovich.dto.LikeDto;
 import com.stefanovich.dto.ListPostDto;
 import com.stefanovich.dto.PostCreateDto;
 import com.stefanovich.dto.PostIdDto;
-import com.stefanovich.model.ModerationStatus;
 import com.stefanovich.service.PostService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,22 +20,16 @@ public class ApiPostController {
 
     @GetMapping
     public ListPostDto getAll(@RequestParam(defaultValue = "0", required = false) Integer offset,
-                              @RequestParam(defaultValue = "5", required = false) Integer limit) {
-        return ListPostDto.builder()
-                .count(postService.getCount())
-                .posts(postService.getAllPostsDto(offset, limit))
-                .build();
+                              @RequestParam(defaultValue = "5", required = false) Integer limit,
+                              @RequestParam String mode) {
+        return postService.getAllPostsDto(offset, limit, mode);
     }
 
     @GetMapping("/search")
     public ListPostDto getPostsSearch(@RequestParam(defaultValue = "0", required = false) Integer offset,
                                       @RequestParam(defaultValue = "5", required = false) Integer limit,
                                       @RequestParam String query) {
-        long count = postService.getPostsDtoSearch(offset, limit, query).size();
-        return ListPostDto.builder()
-                .count(count)
-                .posts(postService.getPostsDtoSearch(offset, limit, query))
-                .build();
+        return postService.getPostsDtoSearch(offset, limit, query);
     }
 
 
@@ -48,11 +38,8 @@ public class ApiPostController {
                                  @RequestParam(defaultValue = "5", required = false) Integer limit,
                                  @RequestParam String date) {
 
-        long count = postService.getPostsDtoByDate(offset, limit, date).size();
-        return ListPostDto.builder()
-                .count(count)
-                .posts(postService.getPostsDtoByDate(offset, limit, date))
-                .build();
+        return postService.getPostsDtoByDate(offset, limit, date);
+
     }
 
     @GetMapping("/byTag")
@@ -60,40 +47,26 @@ public class ApiPostController {
                                  @RequestParam(defaultValue = "5", required = false) Integer limit,
                                  @RequestParam(name = "tag") String tagName) {
 
-        long count = postService.getByTagsDto(offset, limit, tagName).size();
-
-        return ListPostDto.builder()
-                .count(count)
-                .posts(postService.getByTagsDto(offset, limit, tagName))
-                .build();
+        return postService.getByTagsDto(offset, limit, tagName);
     }
 
 
     @GetMapping("/moderation")
     public ListPostDto getByModeration(@RequestParam(defaultValue = "0", required = false) Integer offset,
-                                       @RequestParam(defaultValue = "5", required = false) Integer limit,
-                                       @RequestParam ModerationStatus status) {
+                                       @RequestParam(defaultValue = "10", required = false) Integer limit,
+                                       @RequestParam String status) {
 
-        long count = postService.getByModeration(offset, limit, status).size();
-        return ListPostDto.builder()
-                .count(count)
-                .posts(postService.getByModeration(offset, limit, status))
-                .build();
+        return postService.getByModeration(offset, limit, status);
     }
-
 
     @GetMapping("/my")
-    public ListPostDto getByModeration(@RequestParam(defaultValue = "0", required = false) Integer offset,
-                                       @RequestParam(defaultValue = "5", required = false) Integer limit,
-                                       @RequestParam ModerationStatus status,
-                                       @RequestParam Boolean isActive) {
-        long count = postService.getByMyPosts(offset, limit, status, isActive).size();
+    public ListPostDto getByMyPost(@RequestParam(defaultValue = "0", required = false) Integer offset,
+                                   @RequestParam(defaultValue = "5", required = false) Integer limit,
+                                   @RequestParam String status) {
 
-        return ListPostDto.builder()
-                .count(count)
-                .posts(postService.getByMyPosts(offset, limit, status, isActive))
-                .build();
+        return postService.getByMyPosts(offset, limit, status);
     }
+
 
     @GetMapping("/{id}")
     public PostIdDto getByPostId(@PathVariable Integer id) {
@@ -110,10 +83,6 @@ public class ApiPostController {
         return map;
     }
 
-    @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public String saveImage(@RequestPart MultipartFile image) throws IOException {
-        return postService.savePicture(image);
-    }
 
     @PutMapping("/{id}")
     public Map<String, Boolean> updatePost(@PathVariable Integer id, @RequestBody @Valid PostCreateDto postCreateDto) {

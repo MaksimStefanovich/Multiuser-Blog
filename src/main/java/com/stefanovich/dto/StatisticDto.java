@@ -3,6 +3,8 @@ package com.stefanovich.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
+
 @Data
 @NoArgsConstructor
 public class StatisticDto {
@@ -12,6 +14,6 @@ public class StatisticDto {
     private String viewsCount;
 
 
-    private String firstPublication;
+    private Long firstPublication;
 
 }

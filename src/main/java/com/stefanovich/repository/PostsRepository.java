@@ -3,6 +3,7 @@ package com.stefanovich.repository;
 import com.stefanovich.model.ModerationStatus;
 import com.stefanovich.model.Posts;
 import com.stefanovich.model.Users;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,20 +19,20 @@ import java.util.List;
 public interface PostsRepository extends JpaRepository<Posts, Integer> {
 
 
-    List<Posts> findAllByIsActiveTrueAndAndModerationStatusAndTimeIsBefore(ModerationStatus moderationStatus,
-                                                                           LocalDateTime time, Pageable pageable);
+    Page<Posts> findAllByIsActiveTrueAndModerationStatusAndTimeIsBefore(ModerationStatus moderationStatus,
+                                                                        LocalDateTime time, Pageable pageable);
 
 
     @Query("SELECT p FROM Posts p WHERE p.title LIKE %:query% and p.isActive = true " +
             "and p.moderationStatus = 'ACCEPTED'" +
             "and p.time <= CURRENT_TIMESTAMP ")
-    List<Posts> findAllByQuery(@Param("query") String query, Pageable pageable);
+    Page<Posts> findAllByQuery(@Param("query") String query, Pageable pageable);
 
 
     @Query("SELECT p FROM Posts p WHERE p.isActive = true " +
             "and p.moderationStatus = 'ACCEPTED'" +
             "and p.time <= CURRENT_TIMESTAMP and p.time  >= :localDateTime and p.time  <= :localDateTime1")
-    List<Posts> findAllByDate(Pageable pageable, LocalDateTime localDateTime,
+    Page<Posts> findAllByDate(Pageable pageable, LocalDateTime localDateTime,
                               LocalDateTime localDateTime1);
 
 
@@ -41,18 +42,26 @@ public interface PostsRepository extends JpaRepository<Posts, Integer> {
             "and p.moderationStatus = 'ACCEPTED' " +
             "and p.time <= CURRENT_TIMESTAMP " +
             "and t.name = :tagName")
-    List<Posts> findByTag(String tagName, Pageable pageable);
+    Page<Posts> findByTag(String tagName, Pageable pageable);
 
 
     @Query("SELECT p FROM Posts p WHERE p.isActive = true " +
-            "and p.moderator.isModerator = true and p.moderationStatus = :status ")
-    List<Posts> findAllModeration(Pageable pageable, ModerationStatus status);
+            "and p.user = :users " +
+            "and p.moderationStatus = :status ")
+    Page<Posts> findMyModeration(Pageable pageable, ModerationStatus status, Users users);
+
+    @Query("SELECT p FROM Posts p WHERE p.isActive = true " +
+            "and p.moderationStatus = :status ")
+    Page<Posts> findAllModeration(Pageable pageable, ModerationStatus status);
 
 
     @Query("SELECT p FROM Posts p WHERE p.user = :user " +
-            "and p.isActive = :isActive and p.moderationStatus = :status ")
-    List<Posts> findByAllMyPost(Pageable pageable, ModerationStatus status, Users user, Boolean isActive);
+            "and p.isActive = true and p.moderationStatus = :status ")
+    Page<Posts> findByAllMyPosts(Pageable pageable, Users user, ModerationStatus status);
 
+    @Query("SELECT p FROM Posts p WHERE p.user = :user " +
+            "and p.isActive = false ")
+    Page<Posts> findByMyPostNoActive(Pageable pageable, Users user);
 
     @Query("SELECT p FROM Posts p WHERE p.isActive = true " +
             "and p.moderationStatus = 'ACCEPTED'" +

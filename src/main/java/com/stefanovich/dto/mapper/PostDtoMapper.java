@@ -7,6 +7,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,8 +23,8 @@ public class PostDtoMapper {
     public PostDto convertToPostsDTO(Posts posts) {
         PostDto postDto = modelMapper
                 .map(posts, PostDto.class);
-        postDto.setTimestamp(Timestamp.valueOf(posts.getTime()).getTime());
-//        postDto.setComments(p.convertToDtoListPostComments(posts.getPostComments()));
+        Instant instant = posts.getTime().atZone(ZoneId.of("Europe/Paris")).toInstant();
+        postDto.setTimestamp(instant.getEpochSecond());
         return postDto;
     }
 

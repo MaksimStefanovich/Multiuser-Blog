@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.Valid;
 import java.io.IOException;
 import java.util.Map;
 
@@ -21,10 +20,9 @@ public class ApiProfileMyController {
 
     @PostMapping(value = "/api/profile/my", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, Object> changePasswordAndPhoto(@RequestPart MultipartFile photo, String name, String email,
-                                                      String password) throws IOException {
+                                                      String password, Integer removePhoto) throws IOException {
 
-
-        return profileMyService.changePhotoAndPassword(name, email, password, photo);
+        return profileMyService.changePhotoAndPassword(photo, name, email, password, removePhoto);
     }
 
     @PostMapping(value = "/api/profile/my")

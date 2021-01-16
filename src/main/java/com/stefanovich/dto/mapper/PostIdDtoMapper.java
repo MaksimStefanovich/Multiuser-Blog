@@ -6,7 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
-import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.ZoneId;
 
 @Component
 @RequiredArgsConstructor
@@ -15,11 +16,12 @@ public class PostIdDtoMapper {
     private final PostsCommentsDtoMapper p;
 
 
-    public PostIdDto convertToPostDtoId(Posts posts){
+    public PostIdDto convertToPostDtoId(Posts posts) {
 
         PostIdDto postIdDto = modelMapper
                 .map(posts, PostIdDto.class);
-        postIdDto.setTimestamp(Timestamp.valueOf(posts.getTime()).getTime());
+        Instant instant = posts.getTime().atZone(ZoneId.of("Europe/Paris")).toInstant();
+        postIdDto.setTimestamp(instant.getEpochSecond());
         postIdDto.setComments(p.convertToDtoListPostComments(posts.getPostComments()));
         return postIdDto;
     }
