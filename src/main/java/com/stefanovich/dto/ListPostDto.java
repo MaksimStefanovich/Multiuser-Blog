@@ -9,6 +9,5 @@ import java.util.List;
 @Builder
 public class ListPostDto {
     Long count;
-
     List<PostDto> posts;
 }

@@ -8,7 +8,6 @@ import javax.validation.constraints.NotNull;
 @Data
 @NoArgsConstructor
 public class PostDto {
-
     private Integer id;
 
     private Long timestamp;
@@ -29,12 +28,10 @@ public class PostDto {
 
     private Integer viewCount;
 
-
     @Data
     @NoArgsConstructor
     protected static class UserDto {
         Integer id;
         String name;
-
     }
 }

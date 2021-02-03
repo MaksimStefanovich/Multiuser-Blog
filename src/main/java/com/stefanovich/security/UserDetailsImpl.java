@@ -17,14 +17,12 @@ import java.util.List;
 @Setter
 @Data
 public class UserDetailsImpl implements UserDetails {
-
     private Users user;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(user.isModerator() ? UserRole.MODERATOR.name() : UserRole.USER.name()));
     }
-
 
     @Override
     public String getPassword() {

@@ -1,8 +1,7 @@
 package com.stefanovich.exception;
 
 public class EntityNotFoundException extends RuntimeException {
-
-    public EntityNotFoundException(String entityName, Integer id) {
+    public EntityNotFoundException(String entityName) {
         super(entityName);
     }
 }

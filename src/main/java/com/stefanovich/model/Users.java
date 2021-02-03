@@ -35,6 +35,4 @@ public class Users {
 
     @Column(columnDefinition = "text")
     private String photo;
-
-
 }

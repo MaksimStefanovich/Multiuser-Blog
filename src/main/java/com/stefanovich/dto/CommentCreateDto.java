@@ -11,7 +11,6 @@ import javax.validation.constraints.Size;
 @Data
 @NoArgsConstructor
 public class CommentCreateDto {
-
     @JsonProperty("parent_id")
     private Integer parentId;
 
@@ -19,9 +18,7 @@ public class CommentCreateDto {
     @JsonProperty("post_id")
     private Integer postId;
 
-
     @NotBlank()
     @Size(min = 6, message = "Текст комментария не задан или слишком короткий")
     private String text;
-
 }

@@ -18,7 +18,6 @@ public class ApiModerationController {
     public Map<String, Boolean> moderationPost(@RequestBody ModerationDto moderationDto) {
         Map<String, Boolean> map = new HashMap<>();
         map.put("result", postService.moderationP(moderationDto.getPostId(), moderationDto.getDecision()));
-
         return map;
     }
 }

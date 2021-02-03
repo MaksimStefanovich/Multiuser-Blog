@@ -10,8 +10,6 @@ import java.util.List;
 
 @Repository
 public interface PostCommentsRepository extends JpaRepository<PostComments, Integer> {
-
-
     @Query("SELECT p FROM PostComments p " +
             "JOIN p.messages m " +
             "WHERE m.id = :id ")

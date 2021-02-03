@@ -1,6 +1,5 @@
 package com.stefanovich.dto;
 
-import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -35,5 +34,4 @@ public class PostIdDto {
     private List<PostCommentsDto> comments;
 
     private List<String> tags;
-
 }

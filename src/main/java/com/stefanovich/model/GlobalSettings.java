@@ -18,7 +18,4 @@ public class GlobalSettings {
     private String name;
     @NotNull
     private String value;
-
-
-
 }

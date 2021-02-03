@@ -35,7 +35,6 @@ public class MethodArgumentAdvice extends ResponseEntityExceptionHandler {
         }
 
         result.put("errors", errors);
-
         return ResponseEntity.ok(result);
     }
 

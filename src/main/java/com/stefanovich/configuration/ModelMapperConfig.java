@@ -1,4 +1,4 @@
-package com.stefanovich.Configuration;
+package com.stefanovich.configuration;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;

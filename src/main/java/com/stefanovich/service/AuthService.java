@@ -8,12 +8,12 @@ import com.stefanovich.dto.AuthLoginDto;
 import com.stefanovich.dto.CaptchaDto;
 import com.stefanovich.dto.ChangePasswordDto;
 import com.stefanovich.model.CaptchaCodes;
-import com.stefanovich.model.Posts;
 import com.stefanovich.model.Users;
 import com.stefanovich.repository.CaptchaCodesRepository;
 import com.stefanovich.repository.PostsRepository;
 import com.stefanovich.repository.UsersRepository;
 import com.stefanovich.security.EmailService;
+import com.stefanovich.security.JsonLoginFilter;
 import com.stefanovich.security.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,7 +26,6 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-
     private final UsersRepository usersRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
@@ -41,7 +40,6 @@ public class AuthService {
         return user;
     }
 
-
     public AuthLoginDto getCheck() {
         AuthLoginDto authLoginDto = new AuthLoginDto();
         authLoginDto.setResult(false);
@@ -51,27 +49,13 @@ public class AuthService {
         }
 
         Users user = getCurrentUser();
-        List<Posts> posts = postsRepository.findAllUserId(user.getId());
-
-        AuthLoginDto.AuthUserDto authUserDto = new AuthLoginDto.AuthUserDto();
-        authUserDto.setEmail(user.getEmail());
-        authUserDto.setId(user.getId());
-        authUserDto.setName(user.getName());
-        authUserDto.setPhoto(user.getPhoto());
-        authUserDto.setModeration(user.isModerator());
-        if (!user.isModerator()) {
-            authUserDto.setModerationCount(0);
-        } else {
-            authUserDto.setModerationCount(posts.size());
-        }
-        authUserDto.setSettings(true);
+        AuthLoginDto.AuthUserDto authUserDto = JsonLoginFilter.getAuthUserDto(user, postsRepository);
 
         authLoginDto.setResult(true);
         authLoginDto.setUser(authUserDto);
 
         return authLoginDto;
     }
-
 
     public Map<String, Object> addUser(AddUserDto addUserDto) {
 
@@ -86,7 +70,6 @@ public class AuthService {
         }
 
         Optional<CaptchaCodes> byCode = captchaCodesRepository.findByCapcha(addUserDto.getCaptcha());
-
         if (byCode.isPresent()) {
             CaptchaCodes captchaCodes = byCode.get();
             if (LocalDateTime.now().minusDays(1).isAfter(captchaCodes.getTime())) {
@@ -99,7 +82,6 @@ public class AuthService {
             }
         }
 
-
         Users user = new Users();
         user.setName(addUserDto.getName());
         user.setEmail(addUserDto.getEmail());
@@ -107,11 +89,8 @@ public class AuthService {
         user.setRegTime(LocalDateTime.now());
         user.setModerator(false);
         usersRepository.save(user);
-
         return Map.of("result", true);
-
     }
-
 
     public Boolean restoreEmail(String email) {
         List<Users> users = usersRepository.findByQuery(email);
@@ -119,17 +98,15 @@ public class AuthService {
         if (users.size() != 1) {
             return false;
         }
+
         Users user = users.get(0);
         String code = generateToken();
         user.setCode(code);
         usersRepository.save(user);
 
-
         emailService.send(user.getEmail(), "ввостановление пароля",
                 "http://localhost:8080/login/change-password/" + code);
-
         return true;
-
     }
 
     private String generateToken() {
@@ -174,7 +151,6 @@ public class AuthService {
 
         String encodedString = Base64.getEncoder().encodeToString(fileContent);
 
-
         CaptchaCodes captchaCodes = new CaptchaCodes();
         captchaCodes.setSecretCode(secretCode);
         captchaCodes.setCode(code);
@@ -184,6 +160,4 @@ public class AuthService {
                 .image("data:image/png;base64, " + encodedString)
                 .secret(secretCode).build();
     }
-
-
 }

@@ -34,7 +34,4 @@ public class PostComments {
     @NotNull
     @Lob
     private String text;
-
-
-
 }

@@ -19,13 +19,10 @@ public class CommentService {
     private final PostsRepository postsRepository;
     private final AuthService authService;
 
-
     public Map<String, Integer> saveCommentDto(CommentCreateDto commentCreateDto) {
         PostComments postComments = new PostComments();
         Integer id = commentCreateDto.getPostId();
-
         Posts post = postsRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("post with id = " + id + " not found"));
-
         postComments.setMessages(post);
         postComments.setText(commentCreateDto.getText());
 
@@ -33,8 +30,6 @@ public class CommentService {
             postComments.setParent(postCommentsRepository.findById(commentCreateDto.getParentId()).orElseThrow(
                     () -> new EntityNotFoundException("postComment with id = " + id + " not found")));
         }
-
-        authService.getCurrentUser();
 
         postComments.setUser(authService.getCurrentUser());
         postComments.setTime(LocalDateTime.now());

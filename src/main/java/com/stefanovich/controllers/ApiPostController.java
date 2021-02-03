@@ -32,14 +32,12 @@ public class ApiPostController {
         return postService.getPostsDtoSearch(offset, limit, query);
     }
 
-
     @GetMapping("/byDate")
     public ListPostDto getByDate(@RequestParam(defaultValue = "0", required = false) Integer offset,
                                  @RequestParam(defaultValue = "5", required = false) Integer limit,
                                  @RequestParam String date) {
 
         return postService.getPostsDtoByDate(offset, limit, date);
-
     }
 
     @GetMapping("/byTag")
@@ -49,7 +47,6 @@ public class ApiPostController {
 
         return postService.getByTagsDto(offset, limit, tagName);
     }
-
 
     @GetMapping("/moderation")
     public ListPostDto getByModeration(@RequestParam(defaultValue = "0", required = false) Integer offset,
@@ -67,13 +64,11 @@ public class ApiPostController {
         return postService.getByMyPosts(offset, limit, status);
     }
 
-
     @GetMapping("/{id}")
     public PostIdDto getByPostId(@PathVariable Integer id) {
 
         return postService.getByPostId(id);
     }
-
 
     @PostMapping
     public Map<String, Boolean> savePost(@RequestBody @Valid PostCreateDto postCreateDto) {
@@ -82,7 +77,6 @@ public class ApiPostController {
         postService.savePostDto(postCreateDto);
         return map;
     }
-
 
     @PutMapping("/{id}")
     public Map<String, Boolean> updatePost(@PathVariable Integer id, @RequestBody @Valid PostCreateDto postCreateDto) {
@@ -105,8 +99,5 @@ public class ApiPostController {
         Map<String, Boolean> map = new HashMap<>();
         map.put("result", postService.saveDisLike(likeDto));
         return map;
-
     }
-
-
 }

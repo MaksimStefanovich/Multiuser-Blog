@@ -39,14 +39,12 @@ public class GlobalSettingsService {
             globalSettings3.setValue("YES");
         } else globalSettings3.setValue("NO");
         globalSettingsRepository.save(globalSettings3);
-
-
     }
 
     public Map<String, Boolean> getGlobalSettings() {
         List<GlobalSettings> all = globalSettingsRepository.findAll();
         Map<String, Boolean> settings = new HashMap<>();
-        all.stream().forEach(
+        all.forEach(
                 e -> {
                     if (e.getValue().equals("YES")) {
                         settings.put(e.getCode(), true);
@@ -55,7 +53,6 @@ public class GlobalSettingsService {
                     }
 
                 });
-
         return settings;
     }
 }

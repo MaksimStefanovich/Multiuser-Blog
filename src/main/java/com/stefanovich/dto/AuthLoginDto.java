@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 @Data
 @Getter
 public class AuthLoginDto {
-
     Boolean result;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     AuthUserDto user;
@@ -23,9 +22,5 @@ public class AuthLoginDto {
         Boolean moderation;
         Integer moderationCount;
         Boolean settings;
-
-
     }
-
-
 }

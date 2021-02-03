@@ -23,16 +23,9 @@ public class PostCommentsDto {
 
     @Data
     @NoArgsConstructor
-    //TODO какой тут лучше модификатор доступа, использую еще в PostIdDto
     protected static class UserDtoComment {
         Integer id;
         String name;
         String photo;
-
     }
-
-
-
-
-
 }

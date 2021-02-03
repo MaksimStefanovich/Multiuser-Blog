@@ -10,7 +10,6 @@ import java.util.Map;
 @Getter
 @Builder
 public class CalendarDto {
-
-    private List<Integer> years;
-    private Map<LocalDate, Integer> posts;
+    private final List<Integer> years;
+    private final Map<LocalDate, Integer> posts;
 }

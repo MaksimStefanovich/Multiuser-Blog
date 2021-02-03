@@ -35,10 +35,6 @@ public class ApiProfileMyController {
         if (profileMyDto.getRemovePhoto() == 1) {
             return profileMyService.removePhoto();
         }
-
         return profileMyService.changeNameAndPasswordAndEmail(profileMyDto);
-
     }
-
-
 }

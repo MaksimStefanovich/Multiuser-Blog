@@ -14,12 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class ApiCalendarController {
     private final PostService postService;
 
-
     @GetMapping
     public CalendarDto getCalendar(@RequestParam(required = false) String year) {
         return postService.getYears(year);
-
     }
-
-
 }

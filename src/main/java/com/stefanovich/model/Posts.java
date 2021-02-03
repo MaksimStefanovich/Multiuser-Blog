@@ -54,8 +54,4 @@ public class Posts {
 
     @OneToMany(mappedBy = "messages")
     private List<PostVotes> postVotes = new ArrayList<>();
-
-
-
-
 }

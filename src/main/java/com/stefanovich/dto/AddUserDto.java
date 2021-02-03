@@ -10,7 +10,6 @@ import javax.validation.constraints.Size;
 @Data
 @NoArgsConstructor
 public class AddUserDto {
-
     @JsonProperty("e_mail")
     @NotBlank(message = "Этот e-mail уже зарегистрирован")
     private String email;
@@ -23,11 +22,9 @@ public class AddUserDto {
     @Size(min = 2, message = "Имя указано неверно")
     private String name;
 
-    @NotBlank(message =  "Код с картинки введён неверно")
+    @NotBlank(message = "Код с картинки введён неверно")
     private String captcha;
 
     @JsonProperty("captcha_secret")
     private String captchaSecret;
-
-
 }

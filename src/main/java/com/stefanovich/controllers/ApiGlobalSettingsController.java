@@ -12,7 +12,6 @@ import java.util.Map;
 @RequestMapping("api/settings")
 @RequiredArgsConstructor
 public class ApiGlobalSettingsController {
-
     private final GlobalSettingsService globalSettingsService;
 
     @GetMapping()

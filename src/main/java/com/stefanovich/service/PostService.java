@@ -33,7 +33,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class PostService {
-
     private final PostsRepository postsRepository;
     private final PostDtoMapper postDtoMapper;
     private final PostIdDtoMapper postIdDtoMapper;
@@ -48,36 +47,38 @@ public class PostService {
     @Value("${upload.file.extension}")
     private List<String> extension;
 
-
     public long getCount() {
         return postsRepository.count();
     }
 
-
     public ListPostDto getAllPostsDto(Integer offset, Integer limit, String mode) {
-
         Page<Posts> posts = postsRepository.findAllByIsActiveTrueAndModerationStatusAndTimeIsBefore(
-                ModerationStatus.ACCEPTED, LocalDateTime.now(), PageRequest.of(offset, limit));
+                ModerationStatus.ACCEPTED, LocalDateTime.now(), PageRequest.of(offset / limit, limit));
 
         long totalElements = posts.getTotalElements();
 
         List<PostDto> listPostDto = getListPostDto(posts.toList());
 
-        if (mode.equals("recent")) {
-            listPostDto = listPostDto.stream().sorted((p1, p2) -> Long.compare(p2.getTimestamp(), p1.getTimestamp()))
-                    .collect(Collectors.toList());
+        Comparator<PostDto> comparator;
+        switch (mode) {
+            case "recent":
+                comparator = (p1, p2) -> Long.compare(p2.getTimestamp(), p1.getTimestamp());
+                break;
+            case "popular":
+                comparator = (p1, p2) -> Long.compare(p2.getCommentCount(), p1.getCommentCount());
+                break;
+            case "best":
+                comparator = (p1, p2) -> Long.compare(p2.getLikeCount(), p1.getLikeCount());
+                break;
+            case "early":
+                comparator = Comparator.comparing(PostDto::getTimestamp);
+                break;
+            default:
+                throw new IllegalArgumentException("unknown mode");
         }
-        if (mode.equals("popular")) {
-            listPostDto = listPostDto.stream().sorted((p1, p2) -> Long.compare(p2.getCommentCount(), p1.getCommentCount()))
-                    .collect(Collectors.toList());
-        }
-        if (mode.equals("best")) {
-            listPostDto = listPostDto.stream().sorted((p1, p2) -> Long.compare(p2.getLikeCount(), p1.getLikeCount()))
-                    .collect(Collectors.toList());
-        }
-        if (mode.equals("early")) {
-            listPostDto = listPostDto.stream().sorted(Comparator.comparing(PostDto::getTimestamp)).collect(Collectors.toList());
-        }
+
+        listPostDto = listPostDto.stream().sorted(comparator)
+                .collect(Collectors.toList());
 
         return ListPostDto.builder()
                 .count(totalElements)
@@ -115,7 +116,6 @@ public class PostService {
         return postDtoList;
     }
 
-
     public ListPostDto getPostsDtoSearch(Integer offset, Integer limit, String query) {
         Page<Posts> posts = postsRepository.findAllByQuery(query,
                 PageRequest.of(offset, limit));
@@ -129,9 +129,7 @@ public class PostService {
                 .build();
     }
 
-
     public ListPostDto getPostsDtoByDate(Integer offset, Integer limit, String date) {
-
         LocalDate localDate = LocalDate.parse(date);
         LocalDateTime localDateTime = localDate.atStartOfDay();
         LocalDateTime localDateTime1 = localDateTime.plusDays(1);
@@ -160,87 +158,69 @@ public class PostService {
     }
 
     public ListPostDto getByModeration(Integer offset, Integer limit, String status) {
-
-        Page<Posts> posts = null;
-        ModerationStatus moderationStatus = ModerationStatus.NEW;
+        Page<Posts> posts;
         Users users = authService.getCurrentUser();
+        ModerationStatus moderationStatus;
 
-        if (status.equals("new")) {
-            posts = postsRepository.findAllModeration(PageRequest.of(offset, limit), moderationStatus);
+        switch (status) {
+            case "new":
+                moderationStatus = ModerationStatus.NEW;
+                break;
+            case "declined":
+                moderationStatus = ModerationStatus.DECLINED;
+                break;
+            case "accepted":
+                moderationStatus = ModerationStatus.ACCEPTED;
+                break;
+            default:
+                throw new IllegalArgumentException("unknown status");
         }
+        posts = postsRepository.findMyModeration(PageRequest.of(offset, limit), moderationStatus, users);
+        return getListPostDto(posts);
+    }
 
-        if (status.equals("declined")) {
-            moderationStatus = ModerationStatus.DECLINED;
-            posts = postsRepository.findMyModeration(PageRequest.of(offset, limit), moderationStatus, users);
-        }
-
-        if (status.equals("accepted")) {
-            moderationStatus = ModerationStatus.ACCEPTED;
-            posts = postsRepository.findMyModeration(PageRequest.of(offset, limit), moderationStatus, users);
-        }
-
+    private ListPostDto getListPostDto(Page<Posts> posts) {
         long totalElements = 0;
-        List<PostDto> listPostDto = new ArrayList<>();
 
+        List<PostDto> listPostDto = new ArrayList<>();
         if (posts != null) {
             totalElements = posts.getTotalElements();
             listPostDto = getListPostDto(posts.toList());
         }
-
         return ListPostDto.builder()
                 .count(totalElements)
                 .posts(listPostDto)
                 .build();
-
     }
 
     public ListPostDto getByMyPosts(Integer offset, Integer limit, String status) {
         Users currentUser = authService.getCurrentUser();
-        ModerationStatus moderationStatus;
-        Page<Posts> posts = null;
+        ModerationStatus moderationStatus = null;
+        Page<Posts> posts;
 
-        if (status.equals("inactive")) {
-            posts = postsRepository
-                    .findByMyPostNoActive(PageRequest.of(offset, limit), currentUser);
+        switch (status) {
+            case "inactive":
+                break;
+            case "pending":
+                moderationStatus = ModerationStatus.NEW;
+                break;
+            case "declined":
+                moderationStatus = ModerationStatus.DECLINED;
+                break;
+            case "published":
+                moderationStatus = ModerationStatus.ACCEPTED;
+                break;
+            default:
+                throw new IllegalArgumentException("unknown status");
         }
 
-        if (status.equals("pending")) {
-            moderationStatus = ModerationStatus.NEW;
-            posts = postsRepository
-                    .findByAllMyPosts(PageRequest.of(offset, limit), currentUser, moderationStatus);
-        }
-
-
-        if (status.equals("declined")) {
-            moderationStatus = ModerationStatus.DECLINED;
-            posts = postsRepository
-                    .findByAllMyPosts(PageRequest.of(offset, limit), currentUser, moderationStatus);
-
-        }
-        if (status.equals("published")) {
-            moderationStatus = ModerationStatus.ACCEPTED;
-            posts = postsRepository
-                    .findByAllMyPosts(PageRequest.of(offset, limit), currentUser, moderationStatus);
-
-        }
-
-        long totalElements = 0;
-        List<PostDto> listPostDto = new ArrayList<>();
-
-        if (posts != null) {
-            totalElements = posts.getTotalElements();
-            listPostDto = getListPostDto(posts.toList());
-        }
-
-        return ListPostDto.builder()
-                .count(totalElements)
-                .posts(listPostDto)
-                .build();
+        posts = postsRepository
+                .findByAllMyPosts(PageRequest.of(offset, limit), currentUser, moderationStatus);
+        return getListPostDto(posts);
     }
 
     public PostIdDto getByPostId(Integer id) {
-
-        Posts post = postsRepository.findById(id).orElseThrow(() -> new com.stefanovich.exception.EntityNotFoundException("документ с id = " + id + " не найден", id));
+        Posts post = postsRepository.findById(id).orElseThrow(() -> new com.stefanovich.exception.EntityNotFoundException("документ с id = " + id + " не найден"));
         Users currentUser = authService.getCurrentUser();
 
 
@@ -255,10 +235,8 @@ public class PostService {
             postsRepository.save(post);
         }
 
-
         AtomicInteger likeCount = new AtomicInteger();
         AtomicInteger disLikeCount = new AtomicInteger();
-
 
         List<PostVotes> postVotes = postVotesRepository.findByAllPost(id);
 
@@ -266,7 +244,6 @@ public class PostService {
             if (p.getValue() == 1) likeCount.getAndIncrement();
             if (p.getValue() == -1) disLikeCount.getAndIncrement();
         });
-
 
         List<String> tagName = new ArrayList<>();
         for (Tags tag : post.getTags()) tagName.add(tag.getName());
@@ -277,14 +254,12 @@ public class PostService {
         postIdDto.setDislikeCount(disLikeCount.get());
 
         return postIdDto;
-
     }
 
     public void savePost(Posts post, PostCreateDto postCreateDto) {
         post.setIsActive(postCreateDto.getActive());
         post.setTitle(postCreateDto.getTitle());
         post.setText(postCreateDto.getText());
-
 
         if (postCreateDto.getTimestamp() != null) {
             Timestamp timestamp = new Timestamp(postCreateDto.getTimestamp());
@@ -297,6 +272,8 @@ public class PostService {
 
         List<String> postTags = postCreateDto.getTags();
         List<Tags> tags = tagsRepository.findAll();
+
+        post.getTags().clear();
 
         for (String postTag : postTags) {
             Optional<Tags> tag = tags.stream().filter(t -> t.getName().equals(postTag)).findFirst();
@@ -313,28 +290,22 @@ public class PostService {
         if (post.getViewCount() == null) {
             post.setViewCount(1);
         } else post.setViewCount(post.getViewCount() + 1);
-
         postsRepository.save(post);
     }
-
 
     public void savePostDto(PostCreateDto postCreateDto) {
         Posts post = new Posts();
         savePost(post, postCreateDto);
-
     }
 
     public String savePicture(MultipartFile image) throws IOException {
-
         if (!extension.contains(FilenameUtils.getExtension(image.getOriginalFilename()))) {
             throw new BadRequestException("Неверное расширение файла. Допустимы: jpg, png");
         }
 
         File file = createFile();
         image.transferTo(file);
-
         return file.getAbsolutePath();
-
     }
 
     public File createFile() throws IOException {
@@ -347,20 +318,16 @@ public class PostService {
         return file;
     }
 
-
     public void update(Integer id, PostCreateDto postCreateDto) {
-        Posts post = postsRepository.findById(id).orElseThrow(() -> new com.stefanovich.exception.EntityNotFoundException("документ с id = " + id + " не найден", id));
+        Posts post = postsRepository.findById(id).orElseThrow(() -> new com.stefanovich.exception.EntityNotFoundException("документ с id = " + id + " не найден"));
         savePost(post, postCreateDto);
     }
 
-
     public Boolean moderationP(Integer id, ModerationDto.Decision decision) {
-
-        Posts post = postsRepository.findById(id).orElseThrow(() -> new com.stefanovich.exception.EntityNotFoundException("документ с id = " + id + " не найден", id));
+        Posts post = postsRepository.findById(id).orElseThrow(() -> new com.stefanovich.exception.EntityNotFoundException("документ с id = " + id + " не найден"));
         ModerationStatus moderationStatus1 = post.getModerationStatus();
 
         ModerationStatus moderationStatus = decision.equals(ModerationDto.Decision.ACCEPTED) ? ModerationStatus.ACCEPTED : ModerationStatus.DECLINED;
-
 
         if (moderationStatus1 == moderationStatus) {
             return true;
@@ -368,53 +335,37 @@ public class PostService {
             post.setModerationStatus(moderationStatus);
             ModerationStatus moderationStatus2 = post.getModerationStatus();
             postsRepository.save(post);
-
             return moderationStatus1 != moderationStatus2;
         }
-
-
     }
 
-
     public CalendarDto getYears(String yearSt) {
-
         Integer year = yearSt == null ? LocalDate.now().getYear() : Integer.parseInt(yearSt);
-
         List<LocalDateTime> times = postsRepository.getYear(year);
-
         Map<LocalDate, Integer> posts = new HashMap<>();
-
-
         times.stream()
                 .map(LocalDateTime::toLocalDate)
                 .forEach(t -> posts.merge(t, 1, Integer::sum));
 
-
         List<Integer> date = postsRepository.getYear();
-
-
         return CalendarDto.builder()
                 .posts(posts)
                 .years(date)
                 .build();
-
     }
 
     public Boolean saveLike(LikeDto likeDto) {
-
         return saveLikeOrDislike(1, likeDto.getPostId());
     }
 
     public Boolean saveDisLike(LikeDto likeDto) {
-
         return saveLikeOrDislike(-1, likeDto.getPostId());
     }
 
     public Boolean saveLikeOrDislike(int i, Integer postId) {
-
         Users currentUser = authService.getCurrentUser();
-        Posts post = postsRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("post with id = " + postId + " not found"));
-
+        Posts post = postsRepository.findById(postId).orElseThrow(() ->
+                new EntityNotFoundException("post with id = " + postId + " not found"));
 
         Optional<PostVotes> postVotes = postVotesRepository.findByPostIdAndUserId(currentUser, post);
         if (postVotes.isPresent()) {
@@ -431,6 +382,5 @@ public class PostService {
             postVotesRepository.save(postVotesNew);
         }
         return true;
-
     }
 }

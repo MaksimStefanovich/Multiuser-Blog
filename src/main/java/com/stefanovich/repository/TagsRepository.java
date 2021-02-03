@@ -10,14 +10,6 @@ import java.util.List;
 
 @Repository
 public interface TagsRepository extends JpaRepository<Tags, Integer> {
-    List<Tags> findByName(String name);
-
     @Query("SELECT t FROM Tags t WHERE t.name LIKE :query% ")
         List<Tags> findAllByQuery(@Param("query") String query);
-
-
-
-
-
-
 }

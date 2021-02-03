@@ -21,28 +21,15 @@ public class TagService {
     private final TagDtoMapper tagDtoMapper;
     private final PostsRepository postsRepository;
 
-    public void getWeight() {
-        List<Tags> tags = tagsRepository.findAll();
-        List<Posts> posts = postsRepository.findAll();
-
-
-        Integer countTagsQuery = tags.size();
-
-    }
-
-
     public List<TagDto> getTagsDtoByQuery(String query) {
         List<Tags> tags = tagsRepository.findAllByQuery(query);
         List<TagDto> tagsDto = new ArrayList<>();
-
-        //TODO  добавить условие времени согласно условия
         Long countPosts = postsRepository.count();
 
         Map<Tags, Double> mapWithWeight = new HashMap<>();
         Double maxWeight = 0.0;
 
         for (Tags t : tags) {
-            //TODO  добавить условие времени
             Long countOfPosts = postsRepository.countPostByTagId(t.getId());
 
             double currentWeight = (double) countOfPosts / countPosts;
@@ -59,13 +46,6 @@ public class TagService {
                     .build());
 
         }
-
-
         return tagsDto;
-
-    }
-
-    public List<TagDto> getTagsDto() {
-        return tagDtoMapper.convertToDtoList(tagsRepository.findAll());
     }
 }

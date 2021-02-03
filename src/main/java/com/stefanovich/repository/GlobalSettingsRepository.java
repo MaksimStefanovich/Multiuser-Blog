@@ -7,13 +7,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GlobalSettingsRepository extends JpaRepository<GlobalSettings, Integer> {
-
-
     @Query("SELECT g.value from GlobalSettings  g " +
             "where g.code = 'statistics_is_public' ")
     String findByCode();
-
-
-
-
 }

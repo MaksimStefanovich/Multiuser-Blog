@@ -17,9 +17,8 @@ public class ApiTagController {
     @GetMapping
     public ListTagDto getTags(@RequestParam(defaultValue = "", required = false) String query) {
 
-            return ListTagDto.builder()
-                    .tags(tagService.getTagsDtoByQuery(query))
-                    .build();
-
+        return ListTagDto.builder()
+                .tags(tagService.getTagsDtoByQuery(query))
+                .build();
     }
 }

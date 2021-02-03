@@ -6,21 +6,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class DefaultController {
-
     @GetMapping("/api/init")
     public InitDto init() {
-
         return InitDto.builder()
                 .title("DevPub")
                 .subtitle("Рассказы разработчиков")
                 .phone("+7 903 666-44-55")
-                .email("mail@mail.ru")
-                .copyright("Дмитрий Сергеев")
+                .email("maxim.stefanovich85@gmail.com")
+                .copyright("Maksim Stefanovich")
                 .copyrightFrom("2005")
                 .build();
     }
-
-
-
-
 }

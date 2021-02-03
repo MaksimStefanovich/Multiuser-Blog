@@ -15,9 +15,7 @@ public class PostIdDtoMapper {
     private final ModelMapper modelMapper;
     private final PostsCommentsDtoMapper p;
 
-
     public PostIdDto convertToPostDtoId(Posts posts) {
-
         PostIdDto postIdDto = modelMapper
                 .map(posts, PostIdDto.class);
         Instant instant = posts.getTime().atZone(ZoneId.of("Europe/Paris")).toInstant();
@@ -25,5 +23,4 @@ public class PostIdDtoMapper {
         postIdDto.setComments(p.convertToDtoListPostComments(posts.getPostComments()));
         return postIdDto;
     }
-
 }

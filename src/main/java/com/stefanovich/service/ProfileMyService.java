@@ -11,7 +11,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -37,36 +36,29 @@ public class ProfileMyService {
     private Integer userAvatarSize;
 
 
-    public Map<String, Object> changePhotoAndPassword(MultipartFile photo,String name, String email, String password,
+    public Map<String, Object> changePhotoAndPassword(MultipartFile photo, String name, String email, String password,
                                                       Integer removePhoto) throws IOException {
         if (!extension.contains(FilenameUtils.getExtension(photo.getOriginalFilename()))) {
             throw new RuntimeException();
         }
 
         Users user = authService.getCurrentUser();
-
-
         if (password == null || password.length() < 6) {
             return Map.of(
                     "result", false,
                     "errors", Map.of(
                             "password", "Пароль короче 6-ти символов"
                     ));
-
         }
 
 
         ByteArrayInputStream bis = new ByteArrayInputStream(photo.getBytes());
         BufferedImage image = ImageIO.read(bis);
-
         BufferedImage newImage = Scalr.resize(image, Scalr.Method.SPEED, userAvatarSize, userAvatarSize);
         BufferedImage newImage1 = Scalr.resize(newImage, Scalr.Method.ULTRA_QUALITY, userAvatarSize, userAvatarSize);
 
-
         File file = postService.createFile();
-
         ImageIO.write(newImage1, "jpg", file);
-
         user.setPassword(passwordEncoder.encode(password));
         user.setPhoto(file.getPath());
         usersRepository.save(user);
@@ -76,7 +68,6 @@ public class ProfileMyService {
 
 
     public Map<String, Object> changeNameAndEmail(ProfileMyDto profileMyDto) {
-
         Users user = authService.getCurrentUser();
 
         if (user.getName().equals(profileMyDto.getName())) {
@@ -109,7 +100,6 @@ public class ProfileMyService {
 
         usersRepository.save(user);
         return Map.of("result", true);
-
     }
 
 
@@ -147,7 +137,6 @@ public class ProfileMyService {
         user.setEmail(profileMyDto.getEmail());
         user.setPassword(passwordEncoder.encode(profileMyDto.getPassword()));
         usersRepository.save(user);
-
         return Map.of("result", true);
     }
 
@@ -155,10 +144,6 @@ public class ProfileMyService {
         Users user = authService.getCurrentUser();
         user.setPhoto("");
         usersRepository.save(user);
-
-
         return Map.of("result", true);
-
-
     }
 }

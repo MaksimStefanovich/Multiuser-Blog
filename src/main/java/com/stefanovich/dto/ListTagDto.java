@@ -9,5 +9,4 @@ import java.util.List;
 @Builder
 public class ListTagDto {
     List<TagDto> tags;
-
 }

@@ -5,7 +5,6 @@ import lombok.Data;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Table(name = "captcha_codes")
@@ -26,6 +25,4 @@ public class CaptchaCodes {
     @Column(name = "secret_code", columnDefinition = "TINYTEXT")
     @NotNull
     private String secretCode;
-
-
 }

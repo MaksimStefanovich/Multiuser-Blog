@@ -26,9 +26,7 @@ import java.util.List;
 
 
 public class JsonLoginFilter extends UsernamePasswordAuthenticationFilter {
-
     private final PostsRepository postsRepository;
-
 
     public JsonLoginFilter(AuthenticationManager authenticationManager, PostsRepository postsRepository) {
         this.setAuthenticationManager(authenticationManager);
@@ -40,18 +38,18 @@ public class JsonLoginFilter extends UsernamePasswordAuthenticationFilter {
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         try {
             CredentialsDto credentialsDto = new ObjectMapper().readValue(request.getInputStream(), CredentialsDto.class);
-            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(credentialsDto.getEmail(), credentialsDto.getPassword());
+            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(credentialsDto.getEmail(),
+                    credentialsDto.getPassword());
             return getAuthenticationManager().authenticate(token);
         } catch (IOException e) {
 
             throw new BadCredentialsException("bad credentials");
         }
-
     }
 
-
     @Override
-    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain,
+                                            Authentication authResult) throws IOException, ServletException {
         response.setCharacterEncoding(StandardCharsets.UTF_8.displayName());
         response.addHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_OK);
@@ -60,36 +58,35 @@ public class JsonLoginFilter extends UsernamePasswordAuthenticationFilter {
 
         if (principal instanceof UserDetailsImpl) {
             Users user = ((UserDetailsImpl) principal).getUser();
-            List<Posts> posts = postsRepository.findAllUserId(user.getId());
-
-            AuthLoginDto.AuthUserDto authUserDto = new AuthLoginDto.AuthUserDto();
-            authUserDto.setEmail(user.getEmail());
-            authUserDto.setId(user.getId());
-            authUserDto.setName(user.getName());
-            authUserDto.setPhoto(user.getPhoto());
-            authUserDto.setModeration(user.isModerator());
-            if (!user.isModerator()) {
-                authUserDto.setModerationCount(0);
-            } else {
-                authUserDto.setModerationCount(posts.size());
-            }
-
-            authUserDto.setSettings(true);
-
+            AuthLoginDto.AuthUserDto authUserDto = getAuthUserDto(user, postsRepository);
             AuthLoginDto authLoginDto = new AuthLoginDto();
             authLoginDto.setResult(true);
             authLoginDto.setUser(authUserDto);
-
             response.getWriter().write(new ObjectMapper().writeValueAsString(authLoginDto));
         }
-
         SecurityContextHolder.getContext().setAuthentication(authResult);
+    }
 
-
+    public static AuthLoginDto.AuthUserDto getAuthUserDto(Users user, PostsRepository postsRepository) {
+        List<Posts> posts = postsRepository.findAllUserId(user.getId());
+        AuthLoginDto.AuthUserDto authUserDto = new AuthLoginDto.AuthUserDto();
+        authUserDto.setEmail(user.getEmail());
+        authUserDto.setId(user.getId());
+        authUserDto.setName(user.getName());
+        authUserDto.setPhoto(user.getPhoto());
+        authUserDto.setModeration(user.isModerator());
+        if (!user.isModerator()) {
+            authUserDto.setModerationCount(0);
+        } else {
+            authUserDto.setModerationCount(posts.size());
+        }
+        authUserDto.setSettings(true);
+        return authUserDto;
     }
 
     @Override
-    public void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
+    public void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+                                           AuthenticationException failed) throws IOException {
         response.setCharacterEncoding(StandardCharsets.UTF_8.displayName());
         response.addHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -104,5 +101,4 @@ public class JsonLoginFilter extends UsernamePasswordAuthenticationFilter {
         private String email;
         private String password;
     }
-
 }

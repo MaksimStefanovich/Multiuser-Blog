@@ -15,13 +15,11 @@ public class TagDtoMapper {
     private final ModelMapper modelMapper;
 
     public TagDto convertToTagsDTO(Tags tags) {
-        TagDto tagDto = modelMapper
+        return modelMapper
                 .map(tags, TagDto.class);
-        return tagDto;
     }
 
     public List<TagDto> convertToDtoList(List<Tags> tags) {
         return tags.stream().map(this::convertToTagsDTO).collect(Collectors.toList());
-
     }
 }

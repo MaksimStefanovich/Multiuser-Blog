@@ -18,5 +18,4 @@ public class ModerationDto {
         @JsonProperty("decline")
         DECLINED
     }
-
 }

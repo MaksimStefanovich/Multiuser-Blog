@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class LikeDto {
-
     @JsonProperty("post_id")
     Integer postId;
 }

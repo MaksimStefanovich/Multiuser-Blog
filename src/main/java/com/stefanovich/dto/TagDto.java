@@ -8,5 +8,4 @@ import lombok.Data;
 public class TagDto {
     private String name;
     private Double weight;
-
 }

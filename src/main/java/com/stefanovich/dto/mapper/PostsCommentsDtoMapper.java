@@ -15,18 +15,14 @@ import java.util.stream.Collectors;
 public class PostsCommentsDtoMapper {
     private final ModelMapper modelMapper;
 
-    public PostCommentsDto convertToPostCommentsDto(PostComments comments){
-
+    public PostCommentsDto convertToPostCommentsDto(PostComments comments) {
         PostCommentsDto postCommentsDto = modelMapper
                 .map(comments, PostCommentsDto.class);
         postCommentsDto.setTimestamp(Timestamp.valueOf(comments.getTime()).getTime());
         return postCommentsDto;
-
     }
 
     public List<PostCommentsDto> convertToDtoListPostComments(List<PostComments> postComments) {
         return postComments.stream().map(this::convertToPostCommentsDto).collect(Collectors.toList());
-
     }
-
 }

@@ -10,7 +10,6 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 public class PostCreateDto {
-
     private Long timestamp;
 
     private Boolean active;
@@ -24,6 +23,4 @@ public class PostCreateDto {
     @NotBlank(message = "Текст публикции не установлен")
     @Size(min = 50, message = "Текст публикции слишком короткий")
     private String text;
-
-
 }

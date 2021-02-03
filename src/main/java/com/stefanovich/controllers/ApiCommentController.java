@@ -20,7 +20,6 @@ public class ApiCommentController {
 
     @PostMapping()
     public Map<String, Integer> saveComment(@RequestBody @Valid CommentCreateDto commentCreateDto) {
-
         return commentService.saveCommentDto(commentCreateDto);
     }
 }

@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/statistics")
 @RequiredArgsConstructor
 public class ApiStatisticsController {
-
     private final StatisticService statisticService;
 
     @GetMapping("/my")
@@ -23,7 +22,4 @@ public class ApiStatisticsController {
     public StatisticDto getAllStatistic() {
         return statisticService.getAllStat();
     }
-
-
-
 }

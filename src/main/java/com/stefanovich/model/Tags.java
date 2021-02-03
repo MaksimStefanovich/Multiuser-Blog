@@ -15,6 +15,4 @@ public class Tags {
 
     @NotNull
     private String name;
-
-
 }

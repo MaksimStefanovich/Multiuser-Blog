@@ -17,24 +17,19 @@ import java.util.List;
 
 @Repository
 public interface PostsRepository extends JpaRepository<Posts, Integer> {
-
-
     Page<Posts> findAllByIsActiveTrueAndModerationStatusAndTimeIsBefore(ModerationStatus moderationStatus,
                                                                         LocalDateTime time, Pageable pageable);
-
 
     @Query("SELECT p FROM Posts p WHERE p.title LIKE %:query% and p.isActive = true " +
             "and p.moderationStatus = 'ACCEPTED'" +
             "and p.time <= CURRENT_TIMESTAMP ")
     Page<Posts> findAllByQuery(@Param("query") String query, Pageable pageable);
 
-
     @Query("SELECT p FROM Posts p WHERE p.isActive = true " +
             "and p.moderationStatus = 'ACCEPTED'" +
             "and p.time <= CURRENT_TIMESTAMP and p.time  >= :localDateTime and p.time  <= :localDateTime1")
     Page<Posts> findAllByDate(Pageable pageable, LocalDateTime localDateTime,
                               LocalDateTime localDateTime1);
-
 
     @Query("SELECT p FROM Posts p " +
             "JOIN p.tags t " +
@@ -44,7 +39,6 @@ public interface PostsRepository extends JpaRepository<Posts, Integer> {
             "and t.name = :tagName")
     Page<Posts> findByTag(String tagName, Pageable pageable);
 
-
     @Query("SELECT p FROM Posts p WHERE p.isActive = true " +
             "and p.user = :users " +
             "and p.moderationStatus = :status ")
@@ -52,8 +46,7 @@ public interface PostsRepository extends JpaRepository<Posts, Integer> {
 
     @Query("SELECT p FROM Posts p WHERE p.isActive = true " +
             "and p.moderationStatus = :status ")
-    Page<Posts> findAllModeration(Pageable pageable, ModerationStatus status);
-
+    Page<Posts> findMyModeration(Pageable pageable, ModerationStatus status);
 
     @Query("SELECT p FROM Posts p WHERE p.user = :user " +
             "and p.isActive = true and p.moderationStatus = :status ")
@@ -61,7 +54,7 @@ public interface PostsRepository extends JpaRepository<Posts, Integer> {
 
     @Query("SELECT p FROM Posts p WHERE p.user = :user " +
             "and p.isActive = false ")
-    Page<Posts> findByMyPostNoActive(Pageable pageable, Users user);
+    Page<Posts> findByAllMyPosts(Pageable pageable, Users user);
 
     @Query("SELECT p FROM Posts p WHERE p.isActive = true " +
             "and p.moderationStatus = 'ACCEPTED'" +
@@ -75,14 +68,13 @@ public interface PostsRepository extends JpaRepository<Posts, Integer> {
 
     @Query("SELECT count(p) FROM Posts p " +
             "JOIN p.tags t " +
-            "WHERE t.id = :id ")
+            "WHERE t.id = :id " +
+            "and p.time <= CURRENT_TIMESTAMP ")
     Long countPostByTagId(Integer id);
-
 
     @Query("SELECT distinct year(p.time) as y FROM Posts p" +
             " order by y ")
     List<Integer> getYear();
-
 
     @Query("SELECT  p.time FROM Posts p" +
             " WHERE year(p.time) = :year")

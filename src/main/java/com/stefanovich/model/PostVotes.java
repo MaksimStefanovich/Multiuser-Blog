@@ -29,7 +29,4 @@ public class PostVotes {
     @Column(columnDefinition = "TINYINT")
     @NotNull
     private int value = 0;
-
-
-
 }

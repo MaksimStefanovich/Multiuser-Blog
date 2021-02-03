@@ -10,7 +10,6 @@ import javax.validation.constraints.Size;
 @Data
 @NoArgsConstructor
 public class ChangePasswordDto {
-
     @NotBlank(message = "Ссылка для восстановления пароля устарела. <a href= " +
             "\"/auth/restor\">Запросить ссылку снова</a>")
     String code;
