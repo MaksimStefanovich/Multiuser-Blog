@@ -1,8 +1,6 @@
 package com.stefanovich.service;
 
 import com.stefanovich.dto.TagDto;
-import com.stefanovich.dto.mapper.TagDtoMapper;
-import com.stefanovich.model.Posts;
 import com.stefanovich.model.Tags;
 import com.stefanovich.repository.PostsRepository;
 import com.stefanovich.repository.TagsRepository;
@@ -18,13 +16,12 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class TagService {
     private final TagsRepository tagsRepository;
-    private final TagDtoMapper tagDtoMapper;
     private final PostsRepository postsRepository;
 
     public List<TagDto> getTagsDtoByQuery(String query) {
         List<Tags> tags = tagsRepository.findAllByQuery(query);
         List<TagDto> tagsDto = new ArrayList<>();
-        Long countPosts = postsRepository.count();
+        long countPosts = postsRepository.count();
 
         Map<Tags, Double> mapWithWeight = new HashMap<>();
         Double maxWeight = 0.0;

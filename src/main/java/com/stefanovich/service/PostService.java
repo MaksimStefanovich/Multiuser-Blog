@@ -118,7 +118,7 @@ public class PostService {
 
     public ListPostDto getPostsDtoSearch(Integer offset, Integer limit, String query) {
         Page<Posts> posts = postsRepository.findAllByQuery(query,
-                PageRequest.of(offset, limit));
+                PageRequest.of(offset / limit, limit));
 
         long totalElements = posts.getTotalElements();
         List<PostDto> listPostDto = getListPostDto(posts.toList());
@@ -134,7 +134,7 @@ public class PostService {
         LocalDateTime localDateTime = localDate.atStartOfDay();
         LocalDateTime localDateTime1 = localDateTime.plusDays(1);
 
-        Page<Posts> posts = postsRepository.findAllByDate(PageRequest.of(offset, limit), localDateTime, localDateTime1);
+        Page<Posts> posts = postsRepository.findAllByDate(PageRequest.of(offset / limit, limit), localDateTime, localDateTime1);
 
         long totalElements = posts.getTotalElements();
         List<PostDto> listPostDto = getListPostDto(posts.toList());
@@ -146,7 +146,7 @@ public class PostService {
     }
 
     public ListPostDto getByTagsDto(Integer offset, Integer limit, String name) {
-        Page<Posts> posts = postsRepository.findByTag(name, PageRequest.of(offset, limit));
+        Page<Posts> posts = postsRepository.findByTag(name, PageRequest.of(offset / limit, limit));
 
         long totalElements = posts.getTotalElements();
         List<PostDto> listPostDto = getListPostDto(posts.toList());
@@ -175,7 +175,7 @@ public class PostService {
             default:
                 throw new IllegalArgumentException("unknown status");
         }
-        posts = postsRepository.findMyModeration(PageRequest.of(offset, limit), moderationStatus, users);
+        posts = postsRepository.findMyModeration(PageRequest.of(offset / limit, limit), moderationStatus, users);
         return getListPostDto(posts);
     }
 
@@ -215,7 +215,7 @@ public class PostService {
         }
 
         posts = postsRepository
-                .findByAllMyPosts(PageRequest.of(offset, limit), currentUser, moderationStatus);
+                .findByAllMyPosts(PageRequest.of(offset / limit, limit), currentUser, moderationStatus);
         return getListPostDto(posts);
     }
 
