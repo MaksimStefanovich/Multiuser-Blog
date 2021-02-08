@@ -2,6 +2,7 @@ package com.stefanovich.advice;
 
 import com.stefanovich.exception.BadRequestException;
 import com.stefanovich.exception.EntityNotFoundException;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,7 @@ import java.util.Map;
 @RestControllerAdvice
 @Slf4j
 public class MethodArgumentAdvice extends ResponseEntityExceptionHandler {
+    @Operation(hidden = true)
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         List<ObjectError> allErrors = ex.getBindingResult().getAllErrors();
@@ -38,6 +40,7 @@ public class MethodArgumentAdvice extends ResponseEntityExceptionHandler {
         return ResponseEntity.ok(result);
     }
 
+    @Operation(hidden = true)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(EntityNotFoundException.class)
     public String entityNotFound(EntityNotFoundException e) {
@@ -45,6 +48,7 @@ public class MethodArgumentAdvice extends ResponseEntityExceptionHandler {
         return e.getMessage();
     }
 
+    @Operation(hidden = true)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(BadRequestException.class)
     public String badRequest(BadRequestException e) {
@@ -52,6 +56,7 @@ public class MethodArgumentAdvice extends ResponseEntityExceptionHandler {
         return e.getMessage();
     }
 
+    @Operation(hidden = true)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public Map<String, Object> exception(MaxUploadSizeExceededException e) {
@@ -63,6 +68,7 @@ public class MethodArgumentAdvice extends ResponseEntityExceptionHandler {
                 ));
     }
 
+    @Operation(hidden = true)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     @ExceptionHandler(NullPointerException.class)
     public void unauthorizedUser(NullPointerException e) {

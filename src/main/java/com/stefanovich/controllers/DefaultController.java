@@ -1,10 +1,12 @@
 package com.stefanovich.controllers;
 
 import com.stefanovich.dto.InitDto;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Tag(name = "init API", description = "Метод возвращает общую информацию о блоге")
 public class DefaultController {
     @GetMapping("/api/init")
     public InitDto init() {

@@ -16,6 +16,8 @@ https://stefanovich-java-app.herokuapp.com/
     - Data
     - JPA
     - Web(Spring MVC)
-* Hibernate  
+* Hibernate
 * MySQL
+* Liquibase
+* Swagger
 * Maven
