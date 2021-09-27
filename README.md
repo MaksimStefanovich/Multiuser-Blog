@@ -5,7 +5,7 @@ articles, photos, videos). Publications are selected on the basis of their popul
 
 ## Link to app on a cloud platform (Heroku)
 
-https://stefanovich-java-app.herokuapp.com/
+https://stefanovich-java-app.herokuapp.com/ (for Google Chrome)
 
 ## Using technology
 
