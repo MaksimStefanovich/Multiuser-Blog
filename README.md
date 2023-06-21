@@ -1,4 +1,4 @@
-# Diplom
+# Multiuser Blog
 
 An online service, a platform for bloggers that allows companies and independent authors to publish media content (
 articles, photos, videos). Publications are selected on the basis of their popularity, novelty and topics of interest.
